@@ -1,0 +1,27 @@
+```
+src/
+├── components/
+│   ├── layout/
+│   │   ├── Header.tsx
+│   │   └── Footer.tsx
+│   └── games/
+│       ├── wordle/
+│       │   ├── WordleGame.tsx
+│       │   ├── components/
+│       │   │   ├── WordleBoard.tsx
+│       │   │   ├── WordleKeyboard.tsx
+│       │   │   └── WordleTile.tsx
+│       │   └── hooks/
+│       │       └── useWordleGame.ts
+│       └── 2048/
+│           ├── Game2048.tsx
+│           ├── components/
+│           │   ├── GameBoard.tsx 
+│           │   └── GameTile.tsx
+│           └── hooks/
+│               └── use2048Game.ts
+├── types/
+│   └── game.ts
+├── App.tsx
+└── GameHub.tsx
+```

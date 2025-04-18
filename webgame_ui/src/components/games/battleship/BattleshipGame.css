@@ -1,0 +1,219 @@
+/* Thêm file BattleshipGame.css và import vào BattleshipGame.tsx */
+
+.battleship-game {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 20px;
+	font-family: Arial, sans-serif;
+}
+
+.placement-phase,
+.battle-phase {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.boards-container {
+	display: flex;
+	gap: 40px;
+	flex-wrap: wrap;
+}
+
+.board-wrapper {
+	flex: 1;
+	min-width: 300px;
+}
+
+.battleship-board {
+	display: inline-block;
+	background-color: #f0f8ff;
+	border: 2px solid #1a73e8;
+	padding: 5px;
+}
+
+.board-headers {
+	display: flex;
+}
+
+.corner {
+	width: 30px;
+	height: 30px;
+}
+
+.column-header,
+.row-header {
+	width: 30px;
+	height: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+	background-color: #e6f2ff;
+}
+
+.board-row {
+	display: flex;
+}
+
+.battleship-cell {
+	width: 30px;
+	height: 30px;
+	border: 1px solid #ccc;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	background-color: #ffffff;
+}
+
+.battleship-cell:hover {
+	background-color: #e6f2ff;
+}
+
+.battleship-cell.has-ship {
+	background-color: #c0c0c0;
+}
+
+.battleship-cell.hit {
+	background-color: #ffcccc;
+}
+
+.battleship-cell.ship-hit {
+	background-color: #ff6666;
+}
+
+.battleship-cell.miss {
+	background-color: #99ccff;
+}
+
+.ship-selection-panel {
+	background-color: #f0f8ff;
+	border: 1px solid #ccc;
+	padding: 15px;
+	margin-bottom: 20px;
+	border-radius: 4px;
+}
+
+.ships-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin: 10px 0;
+}
+
+.ship-item {
+	display: flex;
+	align-items: center;
+	padding: 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	cursor: pointer;
+	background-color: #f9f9f9;
+}
+
+.ship-item.selected {
+	border: 2px solid #1a73e8;
+	background-color: #e6f2ff;
+}
+
+.ship-item.placed {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.ship-name {
+	flex: 1;
+}
+
+.ship-visual {
+	display: flex;
+}
+
+.ship-segment {
+	width: 20px;
+	height: 20px;
+	background-color: #666;
+	margin-right: 2px;
+}
+
+.rotate-button {
+	padding: 8px 16px;
+	background-color: #1a73e8;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.rotate-button:hover {
+	background-color: #0d47a1;
+}
+
+button {
+	padding: 10px 20px;
+	background-color: #1a73e8;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 16px;
+	margin-top: 10px;
+}
+
+button:disabled {
+	background-color: #ccc;
+	cursor: not-allowed;
+}
+
+.instructions {
+	font-size: 14px;
+	color: #666;
+}
+
+.game-status {
+	margin-top: 20px;
+	padding: 10px;
+	background-color: #f0f8ff;
+	border-left: 4px solid #1a73e8;
+}
+
+.player-switch-screen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #1a73e8;
+	color: white;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	z-index: 1000;
+}
+
+.player-switch-screen h2 {
+	font-size: 28px;
+	margin-bottom: 20px;
+}
+
+.player-switch-screen p {
+	font-size: 18px;
+	margin-bottom: 30px;
+}
+
+.player-switch-screen button {
+	padding: 12px 24px;
+	background-color: white;
+	color: #1a73e8;
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	cursor: pointer;
+}
+
+.player-switch-screen button:hover {
+	background-color: #f0f0f0;
+}
