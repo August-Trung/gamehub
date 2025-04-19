@@ -4,7 +4,7 @@ import "./styles/TetrisGame.css"; // Import the CSS file
 // Constants
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 25;
-const CELL_SIZE = 25;
+// const CELL_SIZE = 25;
 
 // Tetromino types and shapes
 const TETROMINOS = {
