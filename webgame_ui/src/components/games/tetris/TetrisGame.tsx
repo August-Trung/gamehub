@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
+import "./styles/TetrisGame.css"; // Import the CSS file
 
 // Constants
 const BOARD_WIDTH = 10;
-const BOARD_HEIGHT = 20;
+const BOARD_HEIGHT = 25;
 const CELL_SIZE = 25;
 
 // Tetromino types and shapes
@@ -66,6 +67,45 @@ const TETROMINOS = {
 	},
 };
 
+// Types
+type TetrominoType = keyof typeof TETROMINOS;
+type Board = number[][];
+type Tetromino = number[][];
+
+interface PlayerType {
+	pos: { x: number; y: number };
+	tetromino: Tetromino;
+	collided: boolean;
+}
+
+interface MoveType {
+	x: number;
+	y: number;
+}
+
+// Helper Functions
+const createEmptyBoard = (): Board =>
+	Array.from(Array(BOARD_HEIGHT), () => Array(BOARD_WIDTH).fill(0));
+
+const randomTetromino = (): TetrominoType => {
+	const pieces: TetrominoType[] = ["I", "J", "L", "O", "S", "T", "Z"];
+	return pieces[Math.floor(Math.random() * pieces.length)];
+};
+
+// Cell component
+const Cell: React.FC<{ type: number }> = ({ type }) => (
+	<div
+		className="tetris-cell"
+		style={{
+			backgroundColor:
+				type === 0
+					? "#111"
+					: TETROMINOS[Object.keys(TETROMINOS)[type] as TetrominoType]
+							.color,
+		}}
+	/>
+);
+
 // Main component
 export default function TetrisGame() {
 	// Game state
@@ -75,27 +115,46 @@ export default function TetrisGame() {
 	const [level, setLevel] = useState(1);
 	const [lines, setLines] = useState(0);
 	const [board, setBoard] = useState(createEmptyBoard());
-	const [player, setPlayer] = useState({
+	const [player, setPlayer] = useState<PlayerType>({
 		pos: { x: 0, y: 0 },
 		tetromino: TETROMINOS[0].shape,
 		collided: false,
 	});
-	const [nextPiece, setNextPiece] = useState(randomTetromino());
-	const [dropTime, setDropTime] = useState(null);
+	const [nextPiece, setNextPiece] =
+		useState<TetrominoType>(randomTetromino());
+	const [dropTime, setDropTime] = useState<number | null>(null);
 
-	// Create an empty board
-	function createEmptyBoard() {
-		return Array.from(Array(BOARD_HEIGHT), () =>
-			Array(BOARD_WIDTH).fill(0)
-		);
-	}
+	// Check for collisions
+	const checkCollision = useCallback(
+		(
+			player: PlayerType,
+			board: Board,
+			{ x: moveX, y: moveY }: MoveType
+		): boolean => {
+			for (let y = 0; y < player.tetromino.length; y++) {
+				for (let x = 0; x < player.tetromino[y].length; x++) {
+					// Check that we're on a tetromino cell
+					if (player.tetromino[y][x] !== 0) {
+						const newX = player.pos.x + x + moveX;
+						const newY = player.pos.y + y + moveY;
 
-	// Get a random tetromino
-	function randomTetromino() {
-		const pieces = "IJLOSTZ";
-		const randPiece = pieces[Math.floor(Math.random() * pieces.length)];
-		return randPiece;
-	}
+						// Check collision with walls or bottom
+						if (
+							newX < 0 ||
+							newX >= BOARD_WIDTH ||
+							newY >= BOARD_HEIGHT ||
+							// Check collision with other pieces
+							(newY >= 0 && board[newY][newX] !== 0)
+						) {
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+		},
+		[]
+	);
 
 	// Reset the player position
 	const resetPlayer = useCallback(() => {
@@ -103,7 +162,7 @@ export default function TetrisGame() {
 		setNextPiece(randomTetromino());
 
 		setPlayer({
-			pos: { x: BOARD_WIDTH / 2 - 1, y: 0 },
+			pos: { x: Math.floor(BOARD_WIDTH / 2) - 1, y: 0 },
 			tetromino: TETROMINOS[piece].shape,
 			collided: false,
 		});
@@ -111,9 +170,9 @@ export default function TetrisGame() {
 
 	// Update the board when a piece lands
 	const updateBoard = useCallback(
-		(prevBoard, player) => {
+		(prevBoard: Board, player: PlayerType): Board => {
 			// Deep clone the board
-			const newBoard = prevBoard.map((row) => row.slice());
+			const newBoard: Board = prevBoard.map((row) => [...row]);
 
 			// Add the tetromino to the board
 			player.tetromino.forEach((row, y) => {
@@ -126,7 +185,7 @@ export default function TetrisGame() {
 
 			// Check for completed lines
 			let linesCleared = 0;
-			const updatedBoard = newBoard.reduce((acc, row) => {
+			const updatedBoard: Board = newBoard.reduce((acc: Board, row) => {
 				if (row.every((cell) => cell !== 0)) {
 					linesCleared += 1;
 					acc.unshift(Array(newBoard[0].length).fill(0));
@@ -155,37 +214,9 @@ export default function TetrisGame() {
 		[level]
 	);
 
-	// Check for collisions
-	const checkCollision = useCallback(
-		(player, board, { x: moveX, y: moveY }) => {
-			for (let y = 0; y < player.tetromino.length; y++) {
-				for (let x = 0; x < player.tetromino[y].length; x++) {
-					// Check that we're on a tetromino cell
-					if (player.tetromino[y][x] !== 0) {
-						const newX = player.pos.x + x + moveX;
-						const newY = player.pos.y + y + moveY;
-
-						// Check collision with walls or bottom
-						if (
-							newX < 0 ||
-							newX >= BOARD_WIDTH ||
-							newY >= BOARD_HEIGHT ||
-							// Check collision with other pieces
-							(newY >= 0 && board[newY][newX] !== 0)
-						) {
-							return true;
-						}
-					}
-				}
-			}
-			return false;
-		},
-		[]
-	);
-
 	// Move the tetromino left or right
 	const movePlayer = useCallback(
-		(dir) => {
+		(dir: number) => {
 			if (!isPaused && !gameOver) {
 				if (!checkCollision(player, board, { x: dir, y: 0 })) {
 					setPlayer((prev) => ({
@@ -212,6 +243,7 @@ export default function TetrisGame() {
 					// Game over
 					setGameOver(true);
 					setDropTime(null);
+					return;
 				}
 
 				// Update the board with the landed piece
@@ -252,10 +284,10 @@ export default function TetrisGame() {
 
 			// Perform rotation
 			const rotatedTetromino = clonedPlayer.tetromino
-				.map((_, index) =>
-					clonedPlayer.tetromino.map((col) => col[index])
+				.map((_: number[], index: number) =>
+					clonedPlayer.tetromino.map((col: number[]) => col[index])
 				)
-				.map((row) => row.reverse());
+				.map((row: number[]) => row.reverse());
 
 			clonedPlayer.tetromino = rotatedTetromino;
 
@@ -300,7 +332,6 @@ export default function TetrisGame() {
 		setIsPaused(true);
 		setDropTime(null);
 		setNextPiece(randomTetromino());
-
 		setPlayer({
 			pos: { x: 0, y: 0 },
 			tetromino: TETROMINOS[0].shape,
@@ -308,79 +339,25 @@ export default function TetrisGame() {
 		});
 	}, []);
 
-	// Handle keyboard controls
-	useEffect(() => {
-		const handleKeyDown = (e) => {
-			if (gameOver || isPaused) return;
-
-			switch (e.key) {
-				case "ArrowLeft":
-					movePlayer(-1);
-					break;
-				case "ArrowRight":
-					movePlayer(1);
-					break;
-				case "ArrowDown":
-					moveDown();
-					break;
-				case "ArrowUp":
-					rotate();
-					break;
-				case " ":
-					hardDrop();
-					break;
-				case "p":
-					pauseGame();
-					break;
-				default:
-					break;
-			}
-		};
-
-		document.addEventListener("keydown", handleKeyDown);
-		return () => {
-			document.removeEventListener("keydown", handleKeyDown);
-		};
-	}, [movePlayer, moveDown, rotate, hardDrop, pauseGame, gameOver, isPaused]);
-
-	// Game loop - handle piece dropping
-	useEffect(() => {
-		if (!isPaused && !gameOver) {
-			const timer = setInterval(
-				() => {
-					moveDown();
-				},
-				dropTime || 1000 / level
-			);
-
-			return () => {
-				clearInterval(timer);
-			};
-		}
-	}, [moveDown, dropTime, isPaused, gameOver, level]);
-
-	// Update the board when a piece lands
-	useEffect(() => {
-		if (player.collided) {
-			setBoard((prev) => updateBoard(prev, player));
-			resetPlayer();
-		}
-	}, [player.collided, resetPlayer, updateBoard]);
-
-	// Draw a single cell
-	const Cell = ({ type }) => (
-		<div
-			style={{
-				width: CELL_SIZE,
-				height: CELL_SIZE,
-				backgroundColor:
-					type === 0
-						? "#111"
-						: TETROMINOS[Object.keys(TETROMINOS)[type] || 0].color,
-				border: "1px solid #333",
-			}}
-		/>
-	);
+	// Render the next piece preview
+	const renderNextPiece = () => {
+		return TETROMINOS[nextPiece].shape.map((row: number[], y) => (
+			<div key={y} className="next-piece-row">
+				{row.map((cell, x) => (
+					<div
+						key={`${y}-${x}`}
+						className="next-piece-cell"
+						style={{
+							backgroundColor: cell
+								? TETROMINOS[nextPiece].color
+								: "#111",
+							borderColor: cell ? "#333" : "#222",
+						}}
+					/>
+				))}
+			</div>
+		));
+	};
 
 	// Render the current board with the active piece
 	const renderBoard = () => {
@@ -408,7 +385,7 @@ export default function TetrisGame() {
 		}
 
 		return boardCopy.map((row, y) => (
-			<div key={y} style={{ display: "flex" }}>
+			<div key={y} className="tetris-row">
 				{row.map((cell, x) => (
 					<Cell key={`${y}-${x}`} type={cell} />
 				))}
@@ -416,279 +393,185 @@ export default function TetrisGame() {
 		));
 	};
 
-	// Render the next piece preview
-	const renderNextPiece = () => {
-		return TETROMINOS[nextPiece].shape.map((row, y) => (
-			<div key={y} style={{ display: "flex" }}>
-				{row.map((cell, x) => (
-					<div
-						key={`${y}-${x}`}
-						style={{
-							width: 20,
-							height: 20,
-							backgroundColor: cell
-								? TETROMINOS[nextPiece].color
-								: "#111",
-							border: cell ? "1px solid #333" : "1px solid #222",
-						}}
-					/>
-				))}
-			</div>
-		));
-	};
+	// Handle keyboard controls
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (gameOver || isPaused) return;
+
+			switch (e.key) {
+				case "ArrowLeft":
+					movePlayer(-1);
+					break;
+				case "ArrowRight":
+					movePlayer(1);
+					break;
+				case "ArrowDown":
+					moveDown();
+					break;
+				case "ArrowUp":
+					rotate();
+					break;
+				case " ":
+					hardDrop();
+					break;
+				case "p":
+				case "P":
+					pauseGame();
+					break;
+				default:
+					break;
+			}
+		};
+
+		document.addEventListener("keydown", handleKeyDown);
+		return () => {
+			document.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [movePlayer, moveDown, rotate, hardDrop, pauseGame, gameOver, isPaused]);
+
+	// Game loop - handle piece dropping
+	useEffect(() => {
+		if (!isPaused && !gameOver) {
+			const dropSpeed = dropTime || 1000 / level;
+			const timer = setInterval(() => {
+				moveDown();
+			}, dropSpeed);
+
+			return () => {
+				clearInterval(timer);
+			};
+		}
+	}, [moveDown, dropTime, isPaused, gameOver, level]);
+
+	// Update the board when a piece lands
+	useEffect(() => {
+		if (player.collided) {
+			setBoard((prev) => updateBoard(prev, player));
+			resetPlayer();
+		}
+	}, [player.collided, resetPlayer, updateBoard]);
 
 	return (
-		<div
-			style={{
-				display: "flex",
-				flexDirection: "row",
-				gap: "20px",
-				fontFamily: "Arial, sans-serif",
-				color: "white",
-			}}>
+		<div className="tetris-container">
 			{/* Game board */}
-			<div
-				style={{
-					backgroundColor: "#111",
-					padding: "10px",
-					borderRadius: "4px",
-					boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
-				}}>
-				<div
-					style={{
-						display: "flex",
-						flexDirection: "column",
-						border: "2px solid #333",
-					}}>
-					{renderBoard()}
-				</div>
+			<div className="tetris-game-board">
+				<div className="tetris-board-container">{renderBoard()}</div>
 			</div>
 
 			{/* Side panel */}
-			<div
-				style={{
-					display: "flex",
-					flexDirection: "column",
-					gap: "20px",
-					width: "200px",
-				}}>
+			<div className="tetris-side-panel">
 				{/* Score board */}
-				<div
-					style={{
-						backgroundColor: "#222",
-						padding: "15px",
-						borderRadius: "4px",
-					}}>
+				<div className="tetris-score-board">
 					{gameOver && (
-						<div
-							style={{
-								fontSize: "20px",
-								fontWeight: "bold",
-								color: "#f00",
-								marginBottom: "15px",
-								textAlign: "center",
-							}}>
-							Game Over
-						</div>
+						<div className="tetris-game-over">Game Over</div>
 					)}
 
-					<div style={{ marginBottom: "20px" }}>
-						<div
-							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								marginBottom: "8px",
-							}}>
-							<span style={{ fontWeight: "bold" }}>Score:</span>
+					<div className="tetris-score-container">
+						<div className="tetris-score-line">
+							<span className="tetris-score-label">Score:</span>
 							<span>{score}</span>
 						</div>
-						<div
-							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								marginBottom: "8px",
-							}}>
-							<span style={{ fontWeight: "bold" }}>Level:</span>
+						<div className="tetris-score-line">
+							<span className="tetris-score-label">Level:</span>
 							<span>{level}</span>
 						</div>
-						<div
-							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								marginBottom: "8px",
-							}}>
-							<span style={{ fontWeight: "bold" }}>Lines:</span>
+						<div className="tetris-score-line">
+							<span className="tetris-score-label">Lines:</span>
 							<span>{lines}</span>
 						</div>
 					</div>
 
-					<div style={{ marginTop: "10px", textAlign: "center" }}>
+					<div className="tetris-next-piece-container">
 						<h3>Next Piece</h3>
-						<div
-							style={{
-								display: "flex",
-								flexDirection: "column",
-								alignItems: "center",
-								backgroundColor: "#111",
-								padding: "10px",
-								marginTop: "10px",
-							}}>
+						<div className="tetris-next-piece-preview">
 							{renderNextPiece()}
 						</div>
 					</div>
 				</div>
 
 				{/* Controls */}
-				<div
-					style={{
-						backgroundColor: "#222",
-						padding: "15px",
-						borderRadius: "4px",
-					}}>
-					<div
-						style={{
-							display: "flex",
-							justifyContent: "space-between",
-							marginBottom: "15px",
-						}}>
+				<div className="tetris-controls-panel">
+					<div className="tetris-button-container">
 						<button
 							onClick={isPaused ? startGame : pauseGame}
-							style={{
-								padding: "8px 16px",
-								backgroundColor: "#444",
-								color: "white",
-								border: "none",
-								borderRadius: "4px",
-								cursor: "pointer",
-								fontSize: "14px",
-							}}>
+							className="tetris-button">
 							{gameOver
 								? "New Game"
 								: isPaused
-									? "Resume"
+									? "Start"
 									: "Pause"}
 						</button>
-						<button
-							onClick={resetGame}
-							style={{
-								padding: "8px 16px",
-								backgroundColor: "#444",
-								color: "white",
-								border: "none",
-								borderRadius: "4px",
-								cursor: "pointer",
-								fontSize: "14px",
-							}}>
+						<button onClick={resetGame} className="tetris-button">
 							Reset
 						</button>
 					</div>
 
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-							gap: "10px",
-							marginBottom: "15px",
-						}}>
-						<div
-							style={{
-								display: "flex",
-								justifyContent: "center",
-							}}>
+					<div className="tetris-controls-container">
+						<div className="tetris-control-row">
 							<button
 								onClick={rotate}
-								style={{
-									padding: "10px",
-									width: "100%",
-									backgroundColor: "#444",
-									color: "white",
-									border: "none",
-									borderRadius: "4px",
-									cursor: "pointer",
-								}}>
+								disabled={isPaused || gameOver}
+								className={`tetris-control-button ${
+									isPaused || gameOver ? "disabled" : ""
+								}`}>
 								Rotate
 							</button>
 						</div>
-						<div
-							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								gap: "5px",
-							}}>
+						<div className="tetris-direction-button-container">
 							<button
 								onClick={() => movePlayer(-1)}
-								style={{
-									flex: 1,
-									padding: "10px",
-									backgroundColor: "#444",
-									color: "white",
-									border: "none",
-									borderRadius: "4px",
-									cursor: "pointer",
-								}}>
+								disabled={isPaused || gameOver}
+								className={`tetris-direction-button ${
+									isPaused || gameOver ? "disabled" : ""
+								}`}>
 								Left
 							</button>
 							<button
 								onClick={moveDown}
-								style={{
-									flex: 1,
-									padding: "10px",
-									backgroundColor: "#444",
-									color: "white",
-									border: "none",
-									borderRadius: "4px",
-									cursor: "pointer",
-								}}>
+								disabled={isPaused || gameOver}
+								className={`tetris-direction-button ${
+									isPaused || gameOver ? "disabled" : ""
+								}`}>
 								Down
 							</button>
 							<button
 								onClick={() => movePlayer(1)}
-								style={{
-									flex: 1,
-									padding: "10px",
-									backgroundColor: "#444",
-									color: "white",
-									border: "none",
-									borderRadius: "4px",
-									cursor: "pointer",
-								}}>
+								disabled={isPaused || gameOver}
+								className={`tetris-direction-button ${
+									isPaused || gameOver ? "disabled" : ""
+								}`}>
 								Right
 							</button>
 						</div>
-						<div
-							style={{
-								display: "flex",
-								justifyContent: "center",
-							}}>
+						<div className="tetris-control-row">
 							<button
 								onClick={hardDrop}
-								style={{
-									padding: "10px",
-									width: "100%",
-									backgroundColor: "#444",
-									color: "white",
-									border: "none",
-									borderRadius: "4px",
-									cursor: "pointer",
-								}}>
+								disabled={isPaused || gameOver}
+								className={`tetris-control-button ${
+									isPaused || gameOver ? "disabled" : ""
+								}`}>
 								Drop
 							</button>
 						</div>
 					</div>
 
-					<div
-						style={{
-							fontSize: "12px",
-							color: "#aaa",
-						}}>
-						<h4 style={{ marginBottom: "5px" }}>
+					<div className="tetris-keyboard-help">
+						<h4 className="tetris-keyboard-header">
 							Keyboard Controls:
 						</h4>
-						<p style={{ margin: "3px 0" }}>← → : Move left/right</p>
-						<p style={{ margin: "3px 0" }}>↑ : Rotate</p>
-						<p style={{ margin: "3px 0" }}>↓ : Move down</p>
-						<p style={{ margin: "3px 0" }}>Space : Hard drop</p>
-						<p style={{ margin: "3px 0" }}>P : Pause</p>
+						<p className="tetris-keyboard-instruction">
+							← → : Move left/right
+						</p>
+						<p className="tetris-keyboard-instruction">
+							↑ : Rotate
+						</p>
+						<p className="tetris-keyboard-instruction">
+							↓ : Move down
+						</p>
+						<p className="tetris-keyboard-instruction">
+							Space : Hard drop
+						</p>
+						<p className="tetris-keyboard-instruction">P : Pause</p>
 					</div>
 				</div>
 			</div>
