@@ -7,7 +7,7 @@ import Game2048 from "@/components/games/2048/Game2048";
 import SudokuGame from "@/components/games/sudoku/SudokuGame";
 import CaroGame from "@/components/games/caro/CaroGame";
 import BattleshipGame from "@/components/games/battleship/BattleshipGame";
-// import TetrisGame from "@/components/games/tetris/TetrisGame";
+import TetrisGame from "@/components/games/tetris/TetrisGame";
 import { GameItem } from "@/types/game";
 
 export default function GameHub(): JSX.Element {
@@ -19,7 +19,7 @@ export default function GameHub(): JSX.Element {
 		{ id: "sudoku", name: "Sudoku", component: <SudokuGame /> },
 		{ id: "caro", name: "Caro", component: <CaroGame /> },
 		{ id: "battleship", name: "Battleship", component: <BattleshipGame /> },
-		// { id: "tetrisGame", name: "TetrisGame", component: <TetrisGame /> },
+		{ id: "tetrisGame", name: "TetrisGame", component: <TetrisGame /> },
 	];
 
 	const handleBackToMenu = () => {
