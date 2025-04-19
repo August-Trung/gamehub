@@ -16,10 +16,13 @@ export default function WordleBoard({ gameState }: WordleBoardProps) {
 		const delayBase = 150; // milliseconds
 
 		if (rowIndex < currentRow) {
-			const style: React.CSSProperties = {};
-			for (let i = 0; i < 5; i++) {
-				style[`--reveal-delay-${i}` as any] = `${delayBase * i}ms`;
-			}
+			const style = Object.fromEntries(
+				Array.from({ length: 5 }, (_, i) => [
+					`--reveal-delay-${i}`,
+					`${delayBase * i}ms`,
+				])
+			) as React.CSSProperties & Record<string, string>;
+
 			return {
 				className: "reveal-row",
 				style,

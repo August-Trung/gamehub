@@ -1,4 +1,3 @@
-import React from "react";
 import Board from "./components/Board";
 import Controls from "./components/Controls";
 import { useSudokuGame } from "./hooks/useSudokuGame";

@@ -1,6 +1,6 @@
 import React from "react";
 import BattleshipCell from "./BattleshipCell";
-import { CellState, BoardType } from "../hooks/useBattleshipGame";
+import { BoardType } from "../hooks/useBattleshipGame";
 
 interface BattleshipBoardProps {
 	board: BoardType;

@@ -23,15 +23,15 @@ export const useSudokuGame = () => {
 	const [noteMode, setNoteMode] = useState<boolean>(false);
 	const [mistakes, setMistakes] = useState<number>(0);
 
-	const { generatePuzzle, solveSudoku, isValidMove } = useSudokuSolver();
+	const { generatePuzzle, isValidMove } = useSudokuSolver();
 
 	// Initialize a new game
 	const initializeGame = useCallback(() => {
 		let { puzzle, solution: generatedSolution } =
 			generatePuzzle(difficulty);
 
-		const newBoard = puzzle.map((row, rowIndex) =>
-			row.map((value, colIndex) => ({
+		const newBoard = puzzle.map((row) =>
+			row.map((value) => ({
 				value: value === 0 ? null : value,
 				isFixed: value !== 0,
 				isValid: true,

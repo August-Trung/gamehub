@@ -1,4 +1,3 @@
-import React from "react";
 import GameBoard from "./components/GameBoard";
 import { use2048Game } from "./hooks/use2048Game";
 
@@ -10,7 +9,6 @@ function Game2048(): JSX.Element {
 		won,
 		mergePositions,
 		newTilePosition,
-		handleKeyDown,
 		resetGame,
 		handleTouchStart,
 		handleTouchMove,

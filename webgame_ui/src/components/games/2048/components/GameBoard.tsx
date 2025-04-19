@@ -54,9 +54,12 @@ const GameBoard: React.FC<GameBoardProps> = ({
 												pos.col === colIndex
 										)}
 										isNew={
-											newTilePosition &&
-											newTilePosition.row === rowIndex &&
-											newTilePosition.col === colIndex
+											!!(
+												newTilePosition &&
+												newTilePosition.row ===
+													rowIndex &&
+												newTilePosition.col === colIndex
+											)
 										}
 									/>
 								)

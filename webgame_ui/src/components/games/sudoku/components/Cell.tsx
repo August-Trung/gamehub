@@ -23,7 +23,6 @@ const Cell: React.FC<CellProps> = ({
 	hasSameValue,
 	borderClasses,
 	onClick,
-	onChange,
 }) => {
 	// Determine background color based on cell state
 	let bgColor = "bg-white";
