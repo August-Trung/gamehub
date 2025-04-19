@@ -1,0 +1,364 @@
+/* styles/tetris-game.css */
+
+.tetris-game {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 20px;
+	font-family: "Arial", sans-serif;
+}
+
+.game-container {
+	display: flex;
+	gap: 20px;
+}
+
+/* Main board area */
+.main-area {
+	background-color: #111;
+	padding: 10px;
+	border-radius: 4px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.tetris-board {
+	display: flex;
+	flex-direction: column;
+	border: 2px solid #333;
+}
+
+.board-row {
+	display: flex;
+}
+
+.tetris-cell {
+	width: 25px;
+	height: 25px;
+	border: 1px solid #333;
+}
+
+/* Cell colors for different tetrominos */
+.cell-empty {
+	background-color: #111;
+}
+
+.cell-I {
+	background-color: #00f0f0; /* cyan */
+}
+
+.cell-J {
+	background-color: #0000f0; /* blue */
+}
+
+.cell-L {
+	background-color: #f0a000; /* orange */
+}
+
+.cell-O {
+	background-color: #f0f000; /* yellow */
+}
+
+.cell-S {
+	background-color: #00f000; /* green */
+}
+
+.cell-T {
+	background-color: #a000f0; /* purple */
+}
+
+.cell-Z {
+	background-color: #f00000; /* red */
+}
+
+/* Side panel */
+.side-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	width: 200px;
+}
+
+.score-board {
+	background-color: #222;
+	padding: 15px;
+	border-radius: 4px;
+	color: white;
+}
+
+.game-over {
+	font-size: 20px;
+	font-weight: bold;
+	color: #f00;
+	margin-bottom: 15px;
+	text-align: center;
+}
+
+.stats {
+	margin-bottom: 20px;
+}
+
+.stat-item {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.stat-label {
+	font-weight: bold;
+}
+
+.next-piece-container {
+	margin-top: 10px;
+	text-align: center;
+}
+
+.next-piece {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: #111;
+	padding: 10px;
+	margin-top: 10px;
+}
+
+.next-piece-row {
+	display: flex;
+}
+
+/* Game controls */
+.tetris-controls {
+	background-color: #222;
+	padding: 15px;
+	border-radius: 4px;
+	color: white;
+}
+
+.game-buttons {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 15px;
+}
+
+.game-buttons button {
+	padding: 8px 16px;
+	background-color: #444;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+.game-buttons button:hover {
+	background-color: #666;
+}
+
+.mobile-controls {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-bottom: 15px;
+}
+
+.control-row {
+	display: flex;
+	justify-content: space-between;
+	gap: 5px;
+}
+
+.control-row button {
+	flex: 1;
+	padding: 10px;
+	background-color: #444;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.control-row button:hover {
+	background-color: #666;
+}
+
+.keyboard-instructions {
+	font-size: 12px;
+	color: #aaa;
+}
+
+.keyboard-instructions h4 {
+	margin-bottom: 5px;
+}
+
+.keyboard-instructions p {
+	margin: 3px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.game-container {
+		flex-direction: column;
+	}
+	.side-panel {
+		width: 100%;
+		margin-top: 20px;
+	}
+
+	.score-board,
+	.tetris-controls {
+		max-width: 400px;
+		margin: 0 auto;
+	}
+
+	.mobile-controls {
+		display: none;
+	}
+}
+
+/* Show mobile controls on small screens */
+@media (max-width: 480px) {
+	.tetris-cell {
+		width: 20px;
+		height: 20px;
+	}
+
+	.mobile-controls {
+		display: flex;
+	}
+}
+
+/* High score section */
+.high-scores {
+	background-color: #222;
+	padding: 15px;
+	border-radius: 4px;
+	color: white;
+	margin-top: 20px;
+}
+
+.high-scores h3 {
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+.score-list {
+	list-style: none;
+	padding: 0;
+}
+
+.score-item {
+	display: flex;
+	justify-content: space-between;
+	padding: 5px 0;
+	border-bottom: 1px solid #444;
+}
+
+/* Animation effects */
+@keyframes flashLine {
+	0% {
+		background-color: #fff;
+	}
+	100% {
+		background-color: transparent;
+	}
+}
+
+.flash-line {
+	animation: flashLine 0.3s linear;
+}
+
+@keyframes drop {
+	0% {
+		transform: translateY(-100%);
+	}
+	100% {
+		transform: translateY(0);
+	}
+}
+
+.new-piece {
+	animation: drop 0.5s ease-in;
+}
+
+/* Level indicator with different colors */
+.level-indicator {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	margin-left: 10px;
+}
+
+.level-1 {
+	background-color: #0f0;
+}
+.level-2 {
+	background-color: #ff0;
+}
+.level-3 {
+	background-color: #f90;
+}
+.level-4 {
+	background-color: #f00;
+}
+.level-5 {
+	background-color: #f0f;
+}
+.level-6 {
+	background-color: #00f;
+}
+.level-7 {
+	background-color: #0ff;
+}
+.level-8 {
+	background-color: #fff;
+}
+.level-9 {
+	background-color: #999;
+}
+.level-10 {
+	background-color: #000;
+	border: 1px solid #fff;
+}
+
+/* Game paused overlay */
+.pause-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.7);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: white;
+	font-size: 24px;
+	font-weight: bold;
+	z-index: 10;
+}
+
+/* Hold piece feature */
+.hold-piece-container {
+	background-color: #111;
+	padding: 10px;
+	border-radius: 4px;
+	margin-bottom: 15px;
+}
+
+.hold-piece-container h3 {
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+.hold-piece {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 5px;
+}
+
+/* Ghost piece styling - shows where piece will land */
+.ghost-cell {
+	border: 2px dashed rgba(255, 255, 255, 0.3);
+	background-color: transparent;
+}
