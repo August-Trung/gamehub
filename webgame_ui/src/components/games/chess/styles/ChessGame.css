@@ -1,0 +1,306 @@
+/* Main container */
+.chess-game {
+	font-family: "Arial", sans-serif;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+h1 {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.game-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+	justify-content: center;
+}
+
+/* Chess board */
+.chess-board {
+	position: relative;
+	border: 20px solid #8b4513;
+	border-radius: 4px;
+	width: 560px;
+	height: 600px;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.board-row {
+	display: flex;
+	height: 70px;
+}
+
+.row-label {
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	font-weight: bold;
+	position: absolute;
+	left: -20px;
+}
+
+.col-label {
+	color: #fff;
+	position: absolute;
+	bottom: -1.4rem;
+	width: 100%;
+	text-align: center;
+	font-weight: bold;
+}
+
+.cell {
+	width: 70px;
+	height: 70px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.cell.light {
+	background-color: #f0d9b5;
+}
+
+.cell.dark {
+	background-color: #b58863;
+}
+
+.cell.selected {
+	background-color: rgba(173, 216, 230, 0.8);
+}
+
+.cell.valid-move {
+	position: relative;
+}
+
+.cell.valid-move::after {
+	content: "";
+	position: absolute;
+	width: 25px;
+	height: 25px;
+	background-color: rgba(0, 128, 0, 0.4);
+	border-radius: 50%;
+	z-index: 1;
+}
+
+/* Chess pieces */
+.chess-piece {
+	font-size: 50px;
+	z-index: 2;
+	cursor: grab;
+	transition: transform 0.2s;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.chess-piece:hover {
+	transform: scale(1.1);
+}
+
+.chess-piece.white {
+	color: #fff;
+	text-shadow: 0 0 3px #000;
+}
+
+.chess-piece.black {
+	color: #000;
+	text-shadow: 0 0 3px #555;
+}
+
+/* Game info panel */
+.game-info {
+	width: 300px;
+	padding: 15px;
+	background-color: #f8f8f8;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.status {
+	margin-bottom: 20px;
+	text-align: center;
+}
+
+.status h2 {
+	margin-bottom: 15px;
+	color: #333;
+	font-size: 1.4rem;
+	text-transform: capitalize;
+}
+
+.reset-button {
+	background-color: #4a90e2;
+	color: white;
+	border: none;
+	padding: 8px 16px;
+	font-size: 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.3s;
+}
+
+.reset-button:hover {
+	background-color: #357abd;
+}
+
+.captured-pieces {
+	margin-bottom: 20px;
+}
+
+.captured-section {
+	margin-bottom: 10px;
+}
+
+.captured-section h3 {
+	font-size: 1rem;
+	margin-bottom: 5px;
+	color: #555;
+}
+
+.pieces {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+}
+
+.captured-piece {
+	padding: 4px 8px;
+	font-size: 0.8rem;
+	border-radius: 4px;
+	text-transform: capitalize;
+}
+
+.captured-piece.white {
+	background-color: #f0f0f0;
+	color: #333;
+	border: 1px solid #ddd;
+}
+
+.captured-piece.black {
+	background-color: #333;
+	color: #f0f0f0;
+	border: 1px solid #222;
+}
+
+.move-history {
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.move-history h3 {
+	font-size: 1rem;
+	margin-bottom: 10px;
+	color: #555;
+}
+
+.moves {
+	font-family: "Courier New", monospace;
+}
+
+.move-pair {
+	margin-bottom: 6px;
+	display: flex;
+	gap: 10px;
+}
+
+.move-number {
+	font-weight: bold;
+	min-width: 30px;
+}
+
+.white-move,
+.black-move {
+	min-width: 80px;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 1000px) {
+	.chess-board {
+		width: 480px;
+		height: 520px;
+	}
+
+	.board-row {
+		height: 60px;
+	}
+
+	.cell {
+		width: 60px;
+		height: 60px;
+	}
+
+	.chess-piece {
+		font-size: 40px;
+	}
+}
+
+@media (max-width: 768px) {
+	.game-container {
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.chess-board {
+		width: 400px;
+		height: 440px;
+	}
+
+	.board-row {
+		height: 50px;
+	}
+
+	.cell {
+		width: 50px;
+		height: 50px;
+	}
+
+	.chess-piece {
+		font-size: 34px;
+	}
+
+	.game-info {
+		width: 400px;
+		margin-top: 20px;
+	}
+}
+
+@media (max-width: 480px) {
+	.chess-board {
+		width: 320px;
+		height: 360px;
+	}
+
+	.board-row {
+		height: 40px;
+	}
+
+	.cell {
+		width: 40px;
+		height: 40px;
+	}
+
+	.chess-piece {
+		font-size: 28px;
+	}
+
+	.game-info {
+		width: 320px;
+	}
+}
+
+.king-in-check {
+	background-color: rgba(255, 0, 0, 0.3) !important;
+}
+
+.king-in-checkmate {
+	background-color: rgba(255, 0, 0, 0.6) !important;
+}
