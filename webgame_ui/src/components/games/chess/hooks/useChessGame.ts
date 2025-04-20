@@ -498,13 +498,11 @@ const useChessGame = () => {
 		const opponentColor = playerColor === "white" ? "black" : "white";
 		let inCheck = false;
 
-		// This is a simplified check detection that doesn't handle all edge cases
+		// Check if the king is under attack
 		for (let r = 0; r < 8; r++) {
 			for (let c = 0; c < 8; c++) {
 				const piece = board[r][c];
 				if (piece && piece.color === opponentColor) {
-					// Simplified logic to check if this piece can attack the king
-					// In a complete implementation, we would reuse the getValidMoves logic
 					const canAttackKing = checkIfPieceCanAttack(
 						{ row: r, col: c },
 						kingPos,
@@ -523,9 +521,8 @@ const useChessGame = () => {
 
 		setIsCheck(inCheck);
 
-		// Checkmate detection - if king is in check and has no valid moves
+		// If king is in check, check for checkmate
 		if (inCheck) {
-			// Check if there are any legal moves that can get the king out of check
 			let hasLegalMove = false;
 
 			// Check all pieces of the current player
@@ -533,47 +530,282 @@ const useChessGame = () => {
 				for (let c = 0; c < 8; c++) {
 					const piece = board[r][c];
 					if (piece && piece.color === playerColor) {
-						// Get all potential moves for this piece
-						const potentialMoves = [];
 						const pos = { row: r, col: c };
 
-						// For the king
-						if (piece.type === "king") {
-							const kingMoves = [
-								{ dr: -1, dc: -1 },
-								{ dr: -1, dc: 0 },
-								{ dr: -1, dc: 1 },
-								{ dr: 0, dc: -1 },
-								{ dr: 0, dc: 1 },
-								{ dr: 1, dc: -1 },
-								{ dr: 1, dc: 0 },
-								{ dr: 1, dc: 1 },
-							];
+						// Generate valid moves based on piece type
+						const potentialMoves: Position[] = [];
 
-							for (const move of kingMoves) {
-								const newR = r + move.dr;
-								const newC = c + move.dc;
+						// Based on piece type, add potential destination squares
+						switch (piece.type) {
+							case "pawn": {
+								const direction =
+									piece.color === "white" ? -1 : 1;
+								const startingRow =
+									piece.color === "white" ? 6 : 1;
 
-								if (isValidPosition({ row: newR, col: newC })) {
-									const targetPiece = board[newR][newC];
-									if (
-										!targetPiece ||
-										targetPiece.color !== playerColor
-									) {
+								// Forward moves
+								if (
+									isValidPosition({
+										row: r + direction,
+										col: c,
+									})
+								) {
+									if (!board[r + direction][c]) {
 										potentialMoves.push({
-											row: newR,
-											col: newC,
+											row: r + direction,
+											col: c,
 										});
+
+										// Double move from starting position
+										if (
+											r === startingRow &&
+											!board[r + 2 * direction][c]
+										) {
+											potentialMoves.push({
+												row: r + 2 * direction,
+												col: c,
+											});
+										}
 									}
 								}
-							}
-						} else {
-							// For simplicity, just check if any piece can move anywhere
-							// In a complete implementation, we'd use the move generation logic from getValidMoves
-							for (let nr = 0; nr < 8; nr++) {
-								for (let nc = 0; nc < 8; nc++) {
-									potentialMoves.push({ row: nr, col: nc });
+
+								// Capture moves
+								for (const dc of [-1, 1]) {
+									if (
+										isValidPosition({
+											row: r + direction,
+											col: c + dc,
+										})
+									) {
+										const targetPiece =
+											board[r + direction][c + dc];
+										if (
+											targetPiece &&
+											targetPiece.color !== piece.color
+										) {
+											potentialMoves.push({
+												row: r + direction,
+												col: c + dc,
+											});
+										}
+									}
 								}
+								break;
+							}
+
+							case "knight": {
+								const knightMoves = [
+									{ dr: -2, dc: -1 },
+									{ dr: -2, dc: 1 },
+									{ dr: -1, dc: -2 },
+									{ dr: -1, dc: 2 },
+									{ dr: 1, dc: -2 },
+									{ dr: 1, dc: 2 },
+									{ dr: 2, dc: -1 },
+									{ dr: 2, dc: 1 },
+								];
+
+								for (const move of knightMoves) {
+									const newR = r + move.dr;
+									const newC = c + move.dc;
+
+									if (
+										isValidPosition({
+											row: newR,
+											col: newC,
+										})
+									) {
+										const targetPiece = board[newR][newC];
+										if (
+											!targetPiece ||
+											targetPiece.color !== piece.color
+										) {
+											potentialMoves.push({
+												row: newR,
+												col: newC,
+											});
+										}
+									}
+								}
+								break;
+							}
+
+							case "bishop": {
+								const directions = [
+									{ dr: 1, dc: 1 },
+									{ dr: 1, dc: -1 },
+									{ dr: -1, dc: 1 },
+									{ dr: -1, dc: -1 },
+								];
+
+								for (const dir of directions) {
+									let newR = r + dir.dr;
+									let newC = c + dir.dc;
+
+									while (
+										isValidPosition({
+											row: newR,
+											col: newC,
+										})
+									) {
+										const targetPiece = board[newR][newC];
+
+										if (!targetPiece) {
+											potentialMoves.push({
+												row: newR,
+												col: newC,
+											});
+										} else {
+											if (
+												targetPiece.color !==
+												piece.color
+											) {
+												potentialMoves.push({
+													row: newR,
+													col: newC,
+												});
+											}
+											break; // Stop if we hit any piece
+										}
+
+										newR += dir.dr;
+										newC += dir.dc;
+									}
+								}
+								break;
+							}
+
+							case "rook": {
+								const directions = [
+									{ dr: 0, dc: 1 },
+									{ dr: 0, dc: -1 },
+									{ dr: 1, dc: 0 },
+									{ dr: -1, dc: 0 },
+								];
+
+								for (const dir of directions) {
+									let newR = r + dir.dr;
+									let newC = c + dir.dc;
+
+									while (
+										isValidPosition({
+											row: newR,
+											col: newC,
+										})
+									) {
+										const targetPiece = board[newR][newC];
+
+										if (!targetPiece) {
+											potentialMoves.push({
+												row: newR,
+												col: newC,
+											});
+										} else {
+											if (
+												targetPiece.color !==
+												piece.color
+											) {
+												potentialMoves.push({
+													row: newR,
+													col: newC,
+												});
+											}
+											break; // Stop if we hit any piece
+										}
+
+										newR += dir.dr;
+										newC += dir.dc;
+									}
+								}
+								break;
+							}
+
+							case "queen": {
+								const directions = [
+									{ dr: 0, dc: 1 },
+									{ dr: 0, dc: -1 },
+									{ dr: 1, dc: 0 },
+									{ dr: -1, dc: 0 },
+									{ dr: 1, dc: 1 },
+									{ dr: 1, dc: -1 },
+									{ dr: -1, dc: 1 },
+									{ dr: -1, dc: -1 },
+								];
+
+								for (const dir of directions) {
+									let newR = r + dir.dr;
+									let newC = c + dir.dc;
+
+									while (
+										isValidPosition({
+											row: newR,
+											col: newC,
+										})
+									) {
+										const targetPiece = board[newR][newC];
+
+										if (!targetPiece) {
+											potentialMoves.push({
+												row: newR,
+												col: newC,
+											});
+										} else {
+											if (
+												targetPiece.color !==
+												piece.color
+											) {
+												potentialMoves.push({
+													row: newR,
+													col: newC,
+												});
+											}
+											break; // Stop if we hit any piece
+										}
+
+										newR += dir.dr;
+										newC += dir.dc;
+									}
+								}
+								break;
+							}
+
+							case "king": {
+								const kingMoves = [
+									{ dr: -1, dc: -1 },
+									{ dr: -1, dc: 0 },
+									{ dr: -1, dc: 1 },
+									{ dr: 0, dc: -1 },
+									{ dr: 0, dc: 1 },
+									{ dr: 1, dc: -1 },
+									{ dr: 1, dc: 0 },
+									{ dr: 1, dc: 1 },
+								];
+
+								for (const move of kingMoves) {
+									const newR = r + move.dr;
+									const newC = c + move.dc;
+
+									if (
+										isValidPosition({
+											row: newR,
+											col: newC,
+										})
+									) {
+										const targetPiece = board[newR][newC];
+										if (
+											!targetPiece ||
+											targetPiece.color !== piece.color
+										) {
+											potentialMoves.push({
+												row: newR,
+												col: newC,
+											});
+										}
+									}
+								}
+
+								// Castling logic would go here
+								break;
 							}
 						}
 
@@ -598,6 +830,7 @@ const useChessGame = () => {
 				if (hasLegalMove) break;
 			}
 
+			// If no legal moves and king is in check, it's checkmate
 			setIsCheckmate(!hasLegalMove);
 		} else {
 			setIsCheckmate(false);
@@ -611,20 +844,50 @@ const useChessGame = () => {
 		currentBoard: Board
 	): boolean => {
 		// Create a deep copy of the board to simulate the move
-		const tempBoard: Board = currentBoard.map((row) => [...row]);
+		const tempBoard: Board = JSON.parse(JSON.stringify(currentBoard));
 		const movingPiece = tempBoard[fromPos.row][fromPos.col];
 
 		if (!movingPiece) return false;
 
+		// Handle special moves like en passant
+		let capturedPawnPos: Position | null = null;
+		if (
+			movingPiece.type === "pawn" &&
+			fromPos.col !== toPos.col &&
+			!tempBoard[toPos.row][toPos.col]
+		) {
+			// This might be an en passant capture
+			capturedPawnPos = { row: fromPos.row, col: toPos.col };
+			tempBoard[capturedPawnPos.row][capturedPawnPos.col] = null;
+		}
+
 		// Temporarily make the move
-		tempBoard[toPos.row][toPos.col] = movingPiece;
+		tempBoard[toPos.row][toPos.col] = { ...movingPiece, hasMoved: true };
 		tempBoard[fromPos.row][fromPos.col] = null;
+
+		// Handle castling
+		if (
+			movingPiece.type === "king" &&
+			Math.abs(fromPos.col - toPos.col) > 1
+		) {
+			const row = fromPos.row;
+			// Move the appropriate rook too
+			if (toPos.col === 2) {
+				// Queenside
+				tempBoard[row][3] = tempBoard[row][0];
+				tempBoard[row][0] = null;
+			} else if (toPos.col === 6) {
+				// Kingside
+				tempBoard[row][5] = tempBoard[row][7];
+				tempBoard[row][7] = null;
+			}
+		}
 
 		// Find the king's position after the move
 		let kingPos: Position | null = null;
 
 		// If we're moving the king, use the destination as king position
-		if (movingPiece.type === "king" && movingPiece.color === playerColor) {
+		if (movingPiece.type === "king") {
 			kingPos = { ...toPos };
 		} else {
 			// Otherwise, find the king on the board
@@ -648,6 +911,7 @@ const useChessGame = () => {
 
 		// Check if any opponent piece can attack the king
 		const opponentColor = playerColor === "white" ? "black" : "white";
+		let isInCheck = false;
 
 		for (let r = 0; r < 8; r++) {
 			for (let c = 0; c < 8; c++) {
@@ -662,13 +926,15 @@ const useChessGame = () => {
 					);
 
 					if (canAttackKing) {
-						return true; // King would be in check
+						isInCheck = true;
+						break;
 					}
 				}
 			}
+			if (isInCheck) break;
 		}
 
-		return false; // Move is safe
+		return isInCheck; // Return true if the king would be in check
 	};
 
 	// Helper function to check if a piece can attack a position

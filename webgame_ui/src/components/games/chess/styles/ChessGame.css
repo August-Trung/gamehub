@@ -318,6 +318,25 @@ h1 {
 		width: 400px;
 		margin-top: 20px;
 	}
+
+	.name-move-history {
+		font-size: 1.2rem;
+		font-weight: bold;
+		color: #333;
+		text-align: center;
+		margin-bottom: 10px;
+		margin: 0 3rem;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.white-name-move {
+		margin-left: 0rem;
+	}
+
+	.black-name-move {
+		margin-right: 2.5rem;
+	}
 }
 
 @media (max-width: 480px) {

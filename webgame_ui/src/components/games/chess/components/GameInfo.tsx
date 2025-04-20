@@ -46,9 +46,9 @@ const GameInfo: React.FC<GameInfoProps> = ({
 			return `Checkmate! ${currentPlayer === "white" ? "Black" : "White"} wins!`;
 		}
 		if (isCheck) {
-			return `${currentPlayer} is in check!`;
+			return `${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)} is in check!`;
 		}
-		return `${currentPlayer}'s turn`;
+		return `${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)}'s turn`;
 	};
 
 	// Group moves into pairs (white & black)
