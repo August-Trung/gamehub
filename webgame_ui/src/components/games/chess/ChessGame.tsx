@@ -21,7 +21,6 @@ const ChessGame: React.FC = () => {
 
 	return (
 		<div className="chess-game">
-			<h1>React Chess Game</h1>
 			<div className="game-container">
 				<ChessBoard
 					board={board}

@@ -1,9 +1,10 @@
 /* Main container */
 .chess-game {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	font-family: "Arial", sans-serif;
-	max-width: 1200px;
-	margin: 0 auto;
-	padding: 20px;
+	/* margin: 0 auto; */
 }
 
 h1 {
@@ -222,6 +223,25 @@ h1 {
 	min-width: 80px;
 }
 
+.name-move-history {
+	font-size: 1.2rem;
+	font-weight: bold;
+	color: #333;
+	text-align: center;
+	margin-bottom: 10px;
+	margin: 0 3rem;
+	display: flex;
+	justify-content: space-between;
+}
+
+.white-name-move {
+	margin-left: 0rem;
+}
+
+.black-name-move {
+	margin-right: 2.5rem;
+}
+
 /* Media queries for responsiveness */
 @media (max-width: 1000px) {
 	.chess-board {
@@ -240,6 +260,33 @@ h1 {
 
 	.chess-piece {
 		font-size: 40px;
+	}
+
+	.move-pair {
+		margin-right: 5rem;
+		margin-bottom: 6px;
+		display: flex;
+		justify-content: space-between;
+		gap: 10px;
+	}
+
+	.name-move-history {
+		font-size: 1.2rem;
+		font-weight: bold;
+		color: #333;
+		text-align: center;
+		margin-bottom: 10px;
+		margin: 0 3rem;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.white-name-move {
+		margin-left: 2.5rem;
+	}
+
+	.black-name-move {
+		margin-right: 4rem;
 	}
 }
 
@@ -294,6 +341,33 @@ h1 {
 
 	.game-info {
 		width: 320px;
+	}
+
+	.move-pair {
+		margin-right: 4rem;
+		margin-bottom: 6px;
+		display: flex;
+		justify-content: space-between;
+		gap: 10px;
+	}
+
+	.name-move-history {
+		font-size: 1.2rem;
+		font-weight: bold;
+		color: #333;
+		text-align: center;
+		margin-bottom: 10px;
+		margin: 0 3rem;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.white-name-move {
+		margin-left: 0rem;
+	}
+
+	.black-name-move {
+		margin-right: 2.5rem;
 	}
 }
 

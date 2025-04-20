@@ -126,6 +126,10 @@ const GameInfo: React.FC<GameInfoProps> = ({
 
 			<div className="move-history">
 				<h3>Move History</h3>
+				<div className="name-move-history">
+					<h3 className="white-name-move">White</h3>
+					<h3 className="black-name-move">Black</h3>
+				</div>
 				<div className="moves">{getFormattedMoveHistory()}</div>
 			</div>
 		</div>
