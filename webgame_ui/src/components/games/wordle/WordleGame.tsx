@@ -37,7 +37,12 @@ export default function WordleGame(): JSX.Element {
 	// Add support for touch events for mobile devices
 	useEffect(() => {
 		// Focus an invisible input to make sure keyboard pops up on mobile
-		const focusInput = () => {
+		const focusInput = (e: TouchEvent) => {
+			// Don't handle touch events coming from our virtual keyboard
+			if ((e.target as Element).closest(".keyboard")) {
+				return;
+			}
+
 			const inputElement = document.getElementById(
 				"virtual-keyboard-input"
 			);
@@ -71,7 +76,8 @@ export default function WordleGame(): JSX.Element {
 				onChange={(e) => {
 					const value = e.target.value;
 					if (value.length > 0) {
-						handleKeyPress(value[value.length - 1]);
+						const lastChar = value[value.length - 1];
+						handleKeyPress(lastChar);
 						e.target.value = "";
 					}
 				}}

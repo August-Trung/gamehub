@@ -6,6 +6,7 @@ interface ShipSelectionPanelProps {
 	selectedShip: Ship | null;
 	onSelectShip: (ship: Ship) => void;
 	onRotateShip: () => void;
+	onResetShip: (shipId: number) => void;
 }
 
 const ShipSelectionPanel: React.FC<ShipSelectionPanelProps> = ({
@@ -13,6 +14,7 @@ const ShipSelectionPanel: React.FC<ShipSelectionPanelProps> = ({
 	selectedShip,
 	onSelectShip,
 	onRotateShip,
+	onResetShip,
 }) => {
 	return (
 		<div className="ship-selection-panel">
@@ -31,18 +33,32 @@ const ShipSelectionPanel: React.FC<ShipSelectionPanelProps> = ({
 								<div key={i} className="ship-segment"></div>
 							))}
 						</div>
-						{ship.placed && <span className="placed-mark">✓</span>}
+						{ship.placed ? (
+							<div className="ship-actions">
+								<span className="placed-mark">✓</span>
+								<button
+									className="reset-ship-button"
+									onClick={(e) => {
+										e.stopPropagation();
+										onResetShip(ship.id);
+									}}>
+									Đặt lại
+								</button>
+							</div>
+						) : null}
 					</div>
 				))}
 			</div>
 			{selectedShip && !selectedShip.placed && (
 				<button onClick={onRotateShip} className="rotate-button">
-					Xoay tàu ({selectedShip.isVertical ? "Dọc" : "Ngang"})
+					<span>Xoay tàu</span>
+					<span>({selectedShip.isVertical ? "Dọc" : "Ngang"})</span>
 				</button>
 			)}
 			<div className="instructions">
-				<p>Nhấp vào tàu để chọn, sau đó nhấp vào bảng để đặt.</p>
-				<p>Nhấp vào "Xoay tàu" để thay đổi hướng.</p>
+				<p>1. Nhấp vào tàu để chọn, sau đó nhấp vào bảng để đặt.</p>
+				<p>2. Nhấp vào "Xoay tàu" để thay đổi hướng.</p>
+				<p>3. Nhấp vào "Đặt lại" để di chuyển tàu đã đặt.</p>
 			</div>
 		</div>
 	);

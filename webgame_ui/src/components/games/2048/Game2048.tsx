@@ -5,6 +5,7 @@ function Game2048(): JSX.Element {
 	const {
 		board,
 		score,
+		bestScore,
 		gameOver,
 		won,
 		mergePositions,
@@ -13,6 +14,11 @@ function Game2048(): JSX.Element {
 		handleTouchStart,
 		handleTouchMove,
 		handleTouchEnd,
+		time,
+		formatTime,
+		bestTime,
+		isPaused,
+		togglePause,
 	} = use2048Game();
 
 	return (
@@ -20,15 +26,45 @@ function Game2048(): JSX.Element {
 			<h2 className="text-2xl font-bold mb-4 text-center">2048</h2>
 
 			<div className="flex justify-between items-center mb-4">
-				<div className="bg-gray-200 p-2 rounded">
-					<div className="text-sm text-gray-600">Score</div>
-					<div className="font-bold">{score}</div>
+				<div className="flex gap-2">
+					<div className="bg-gray-200 p-2 rounded">
+						<div className="text-sm text-gray-600">Score</div>
+						<div className="font-bold">{score}</div>
+					</div>
+					<div className="bg-gray-200 p-2 rounded">
+						<div className="text-sm text-gray-600">Best</div>
+						<div className="font-bold">{bestScore}</div>
+					</div>
 				</div>
 
 				<button
 					className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
 					onClick={resetGame}>
 					New Game
+				</button>
+			</div>
+
+			<div className="flex justify-between items-center mb-4">
+				<div className="bg-gray-200 p-2 rounded">
+					<div className="text-sm text-gray-600">Time</div>
+					<div className="font-bold">{formatTime(time)}</div>
+				</div>
+
+				<div className="bg-gray-200 p-2 rounded">
+					<div className="text-sm text-gray-600">Best Time</div>
+					<div className="font-bold">
+						{bestTime > 0 ? formatTime(bestTime) : "--:--"}
+					</div>
+				</div>
+
+				<button
+					className={`px-4 py-2 ${
+						isPaused ? "bg-green-500" : "bg-yellow-500"
+					} text-white rounded hover:${
+						isPaused ? "bg-green-600" : "bg-yellow-600"
+					}`}
+					onClick={togglePause}>
+					{isPaused ? "Continue" : "Pause"}
 				</button>
 			</div>
 
@@ -48,6 +84,7 @@ function Game2048(): JSX.Element {
 				handleTouchStart={handleTouchStart}
 				handleTouchMove={handleTouchMove}
 				handleTouchEnd={handleTouchEnd}
+				isPaused={isPaused}
 			/>
 
 			<div className="mt-6 text-center">
@@ -55,6 +92,7 @@ function Game2048(): JSX.Element {
 					Combine similar tiles to create the 2048 tile!
 					<br />
 					Use arrow buttons or keyboard arrow keys to move tiles.
+					Press 'P' to pause/resume the game.
 				</p>
 			</div>
 		</div>

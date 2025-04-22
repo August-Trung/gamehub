@@ -145,7 +145,10 @@ export const useWordleGame = () => {
 		}
 
 		// Handle backspace
-		if ((key === "Backspace" || key === "←") && gameState.currentCol > 0) {
+		if (
+			(key === "Backspace" || key === "←" || key === "Backspace") &&
+			gameState.currentCol > 0
+		) {
 			const newGuesses = [...gameState.guesses];
 			newGuesses[gameState.currentRow][gameState.currentCol - 1] = "";
 

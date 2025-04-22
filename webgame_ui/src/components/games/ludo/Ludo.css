@@ -1,0 +1,297 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+	margin: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+		"Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+		"Helvetica Neue", sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+code {
+	font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+		monospace;
+}
+
+#game-setup {
+	margin-bottom: 20px;
+	background-color: white;
+	padding: 15px;
+	border-radius: 8px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#game-setup label,
+#game-setup select,
+#game-setup button {
+	margin: 5px;
+	padding: 8px 12px;
+	font-size: 1em;
+}
+
+#game-container {
+	display: flex;
+	align-items: flex-start;
+	gap: 30px;
+}
+
+#board {
+	width: 600px; /* 15 * 40px */
+	height: 600px; /* 15 * 40px */
+	border: 3px solid #333;
+	position: relative;
+	background-color: #fff;
+	box-sizing: border-box;
+}
+
+.square {
+	width: 40px; /* Kích thước ô vuông */
+	height: 40px;
+	border: 1px solid #ccc;
+	position: absolute;
+	box-sizing: border-box;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 10px;
+	background-color: white;
+	z-index: 1; /* Đảm bảo ô vuông nền dưới quân cờ */
+}
+
+/* Màu sắc cho các ô xuất phát */
+.start-square.red {
+	background-color: #ffdddd;
+	border-color: red;
+	font-weight: bold;
+}
+.start-square.blue {
+	background-color: #ddddff;
+	border-color: blue;
+	font-weight: bold;
+}
+.start-square.green {
+	background-color: #ddffdd;
+	border-color: green;
+	font-weight: bold;
+}
+.start-square.yellow {
+	background-color: #ffffdd;
+	border-color: #ccad00;
+	font-weight: bold;
+}
+
+/* Màu sắc cho đường về đích */
+.home-path {
+	background-color: #eee;
+}
+.home-path.red {
+	background-color: #ffcccc;
+}
+.home-path.blue {
+	background-color: #ccccff;
+}
+.home-path.green {
+	background-color: #ccffcc;
+}
+.home-path.yellow {
+	background-color: #ffffcc;
+}
+
+.stable {
+	width: 240px; /* 6 ô * 40px */
+	height: 240px; /* 6 ô * 40px */
+	border: 2px solid;
+	position: absolute;
+	display: flex; /* Cho phép dùng flexbox cho .stable-inner */
+	justify-content: center;
+	align-items: center;
+	box-sizing: border-box;
+	z-index: 0; /* Dưới các ô vuông */
+}
+.stable-inner {
+	width: 90%; /* Điều chỉnh để vừa mắt */
+	height: 90%;
+	border: 1px dashed #666;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: center;
+	font-weight: bold;
+	font-size: 1.1em;
+	padding: 5px; /* Thêm padding */
+	box-sizing: border-box;
+}
+
+/* Vị trí chuồng (Grid 15x15, 0-based index) */
+#stable-red {
+	top: 0px; /* Hàng 0-5 */
+	left: 0px; /* Cột 0-5 */
+	border-color: red;
+	background-color: #ffdddd;
+	color: red;
+}
+#stable-blue {
+	top: 0px; /* Hàng 0-5 */
+	left: 360px; /* Cột 9-14 (6 ô) */
+	border-color: blue;
+	background-color: #ddddff;
+	color: blue;
+}
+#stable-green {
+	top: 360px; /* Hàng 9-14 */
+	left: 360px; /* Cột 9-14 */
+	border-color: green;
+	background-color: #ddffdd;
+	color: green;
+}
+#stable-yellow {
+	top: 360px; /* Hàng 9-14 */
+	left: 0px; /* Cột 0-5 */
+	border-color: #ccad00;
+	background-color: #ffffdd;
+	color: #ccad00;
+}
+
+/* Khu vực về đích (Home Area divs không cần định vị nữa) */
+.home-area {
+	/* position: absolute; */ /* Không cần nữa */
+	/* display: flex; */ /* Không cần nữa */
+	/* Có thể xóa bỏ hoặc để trống */
+}
+
+#center-area {
+	position: absolute;
+	width: 120px; /* 3 ô * 40px */
+	height: 120px; /* 3 ô * 40px */
+	top: 240px; /* Hàng 6-8 (Bắt đầu từ 6*40) */
+	left: 240px; /* Cột 6-8 (Bắt đầu từ 6*40) */
+	background-color: #ddd;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-weight: bold;
+	font-size: 1.5em;
+	text-align: center;
+	box-sizing: border-box;
+	border: 2px solid #999;
+	z-index: 0;
+}
+
+.piece {
+	width: 32px; /* Điều chỉnh kích thước nếu cần */
+	height: 32px; /* Điều chỉnh kích thước nếu cần */
+	box-sizing: border-box;
+	cursor: pointer;
+	transition:
+		top 0.3s ease,
+		left 0.3s ease,
+		box-shadow 0.2s ease;
+	z-index: 10;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	/* padding: 1px; Bỏ padding hoặc giữ lại tùy ý */
+}
+
+/* Style cho highlight vẫn giữ nguyên */
+.piece.highlight {
+	box-shadow: 0 0 8px 4px gold;
+	cursor: pointer;
+	/* Thêm hiệu ứng scale nhẹ khi highlight nếu muốn */
+	/* transform: scale(1.1); */
+	/* transition: top 0.3s ease, left 0.3s ease, box-shadow 0.2s ease, transform 0.2s ease; */
+}
+
+/* Style cho quân cờ trong chuồng */
+.piece.in-stable {
+	position: relative;
+	top: auto;
+	left: auto;
+	margin: 2px;
+	flex-shrink: 0;
+	width: 28px; /* Làm nhỏ hơn chút khi ở trong chuồng */
+	height: 28px;
+}
+
+/* Style cho SVG bên trong giữ nguyên */
+.piece svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+#controls {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: white;
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	min-width: 200px;
+}
+
+#dice-area {
+	margin-bottom: 15px;
+}
+
+#dice {
+	width: 60px;
+	height: 60px;
+	border: 2px solid #666;
+	border-radius: 5px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 2em;
+	font-weight: bold;
+	background-color: #f9f9f9;
+}
+
+#roll-button {
+	padding: 10px 20px;
+	font-size: 1.1em;
+	cursor: pointer;
+	margin-bottom: 15px;
+}
+#roll-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.6;
+}
+
+#message-area {
+	margin-top: 10px;
+	padding: 10px;
+	background-color: #e7f3fe;
+	border-left: 5px solid #2196f3;
+	min-height: 40px;
+	width: 90%;
+	text-align: center;
+	font-style: italic;
+	font-size: 0.95em; /* Cho nhỏ lại chút nếu cần */
+}
+
+#turn-indicator {
+	margin-top: 15px;
+	font-weight: bold;
+}
+#current-player.red {
+	color: red;
+}
+#current-player.blue {
+	color: blue;
+}
+#current-player.green {
+	color: green;
+}
+#current-player.yellow {
+	color: #ccad00;
+}
+
+.hidden {
+	display: none;
+}

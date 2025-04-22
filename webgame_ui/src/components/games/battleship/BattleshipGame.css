@@ -1,35 +1,120 @@
-/* Thêm file BattleshipGame.css và import vào BattleshipGame.tsx */
+/* BattleshipGame.css - phiên bản cải tiến */
+
+/* Biến CSS toàn cục */
+:root {
+	--primary-color: #1a73e8;
+	--primary-dark: #0d47a1;
+	--secondary-color: #34a853;
+	--accent-color: #ea4335;
+	--background-color: #f0f8ff;
+	--border-color: #ccc;
+	--cell-size: 36px;
+	--light-blue: #e6f2ff;
+	--water-blue: #bbdefb;
+	--ship-color: #455a64;
+	--hit-color: #ff6666;
+	--miss-color: #99ccff;
+}
+
+body {
+	background-color: #f5f5f5;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
 
 .battleship-game {
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 20px;
-	font-family: Arial, sans-serif;
+	background-color: white;
+	border-radius: 10px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.placement-phase,
+.battleship-game h1 {
+	text-align: center;
+	color: var(--primary-dark);
+	margin-bottom: 30px;
+	font-size: 32px;
+	position: relative;
+}
+
+.battleship-game h1::after {
+	content: "";
+	position: absolute;
+	bottom: -10px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 100px;
+	height: 3px;
+	background-color: var(--primary-color);
+}
+
+/* Giai đoạn đặt tàu */
+.placement-phase {
+	display: flex;
+	flex-direction: column;
+	gap: 30px;
+	align-items: center;
+}
+
+.placement-phase h2 {
+	color: var(--primary-color);
+	font-size: 24px;
+	margin: 0;
+}
+
+/* Giai đoạn chiến đấu */
 .battle-phase {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	gap: 30px;
 }
 
 .boards-container {
 	display: flex;
 	gap: 40px;
 	flex-wrap: wrap;
+	justify-content: center;
 }
 
 .board-wrapper {
 	flex: 1;
-	min-width: 300px;
+	min-width: 360px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: white;
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.board-wrapper h2 {
+	color: var(--primary-color);
+	margin-top: 0;
+	margin-bottom: 20px;
+	font-size: 20px;
+	position: relative;
+}
+
+.board-wrapper h2::after {
+	content: "";
+	position: absolute;
+	bottom: -6px;
+	left: 0;
+	width: 60px;
+	height: 2px;
+	background-color: var(--primary-color);
+}
+
+/* Bảng trò chơi */
 .battleship-board {
 	display: inline-block;
-	background-color: #f0f8ff;
-	border: 2px solid #1a73e8;
-	padding: 5px;
+	background-color: var(--water-blue);
+	border: 2px solid var(--primary-color);
+	border-radius: 4px;
+	padding: 8px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .board-headers {
@@ -37,19 +122,22 @@
 }
 
 .corner {
-	width: 30px;
-	height: 30px;
+	width: var(--cell-size);
+	height: var(--cell-size);
 }
 
 .column-header,
 .row-header {
-	width: 30px;
-	height: 30px;
+	width: var(--cell-size);
+	height: var(--cell-size);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	font-weight: bold;
-	background-color: #e6f2ff;
+	background-color: var(--light-blue);
+	color: var(--primary-dark);
+	border-radius: 4px;
+	margin: 1px;
 }
 
 .board-row {
@@ -57,22 +145,29 @@
 }
 
 .battleship-cell {
-	width: 30px;
-	height: 30px;
+	width: var(--cell-size);
+	height: var(--cell-size);
 	border: 1px solid #ccc;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	background-color: #ffffff;
+	background-color: var(--water-blue);
+	margin: 1px;
+	border-radius: 2px;
+	transition: all 0.2s ease;
+	font-size: 18px;
 }
 
 .battleship-cell:hover {
-	background-color: #e6f2ff;
+	background-color: var(--light-blue);
+	transform: scale(1.05);
+	box-shadow: 0 0 5px rgba(26, 115, 232, 0.5);
 }
 
 .battleship-cell.has-ship {
-	background-color: #c0c0c0;
+	background-color: var(--ship-color);
+	border-color: #2c3e50;
 }
 
 .battleship-cell.hit {
@@ -80,50 +175,82 @@
 }
 
 .battleship-cell.ship-hit {
-	background-color: #ff6666;
+	background-color: var(--hit-color);
+	animation: pulse 1s infinite;
 }
 
 .battleship-cell.miss {
-	background-color: #99ccff;
+	background-color: var(--miss-color);
 }
 
+@keyframes pulse {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.7;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+/* Panel chọn tàu */
 .ship-selection-panel {
-	background-color: #f0f8ff;
-	border: 1px solid #ccc;
-	padding: 15px;
+	background-color: white;
+	border: 1px solid var(--border-color);
+	padding: 20px;
 	margin-bottom: 20px;
-	border-radius: 4px;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	width: 100%;
+	max-width: 500px;
+}
+
+.ship-selection-panel h3 {
+	color: var(--primary-color);
+	margin-top: 0;
+	font-size: 18px;
+	border-bottom: 2px solid var(--light-blue);
+	padding-bottom: 10px;
 }
 
 .ships-list {
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
-	margin: 10px 0;
+	gap: 12px;
+	margin: 15px 0;
 }
 
 .ship-item {
 	display: flex;
 	align-items: center;
-	padding: 8px;
+	padding: 12px;
 	border: 1px solid #ddd;
-	border-radius: 4px;
+	border-radius: 6px;
 	cursor: pointer;
 	background-color: #f9f9f9;
+	transition: all 0.2s ease;
+}
+
+.ship-item:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .ship-item.selected {
-	border: 2px solid #1a73e8;
-	background-color: #e6f2ff;
+	border: 2px solid var(--primary-color);
+	background-color: var(--light-blue);
 }
 
 .ship-item.placed {
-	opacity: 0.6;
+	opacity: 0.8;
 	cursor: not-allowed;
 }
 
 .ship-name {
 	flex: 1;
+	font-weight: 500;
 }
 
 .ship-visual {
@@ -131,60 +258,107 @@
 }
 
 .ship-segment {
-	width: 20px;
-	height: 20px;
-	background-color: #666;
+	width: 24px;
+	height: 24px;
+	background-color: var(--ship-color);
 	margin-right: 2px;
+	border-radius: 2px;
 }
 
+.placed-mark {
+	margin-left: 10px;
+	color: var(--secondary-color);
+	font-weight: bold;
+}
+
+/* Nút */
 .rotate-button {
-	padding: 8px 16px;
-	background-color: #1a73e8;
+	padding: 10px 18px;
+	background-color: var(--primary-color);
 	color: white;
 	border: none;
-	border-radius: 4px;
+	border-radius: 6px;
 	cursor: pointer;
+	transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
 }
 
 .rotate-button:hover {
-	background-color: #0d47a1;
+	background-color: var(--primary-dark);
+	transform: translateY(-2px);
 }
 
 button {
-	padding: 10px 20px;
-	background-color: #1a73e8;
+	padding: 12px 24px;
+	background-color: var(--primary-color);
 	color: white;
 	border: none;
-	border-radius: 4px;
+	border-radius: 6px;
 	cursor: pointer;
 	font-size: 16px;
-	margin-top: 10px;
+	margin-top: 15px;
+	transition: all 0.2s ease;
+	font-weight: 500;
+}
+
+button:hover {
+	background-color: var(--primary-dark);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 button:disabled {
 	background-color: #ccc;
 	cursor: not-allowed;
+	transform: none;
+	box-shadow: none;
 }
 
+/* Hướng dẫn */
 .instructions {
 	font-size: 14px;
 	color: #666;
+	background-color: var(--light-blue);
+	padding: 12px;
+	border-radius: 6px;
+	margin-top: 15px;
 }
 
+.instructions p {
+	margin: 6px 0;
+}
+
+/* Trạng thái trò chơi */
 .game-status {
-	margin-top: 20px;
-	padding: 10px;
-	background-color: #f0f8ff;
-	border-left: 4px solid #1a73e8;
+	margin-top: 25px;
+	padding: 15px;
+	background-color: var(--light-blue);
+	border-left: 4px solid var(--primary-color);
+	border-radius: 4px;
+	text-align: center;
 }
 
+.game-status p {
+	font-size: 18px;
+	margin: 0 0 10px 0;
+	color: #333;
+}
+
+/* Màn hình chuyển người chơi */
 .player-switch-screen {
 	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background-color: #1a73e8;
+	background: linear-gradient(
+		135deg,
+		var(--primary-color),
+		var(--primary-dark)
+	);
 	color: white;
 	display: flex;
 	flex-direction: column;
@@ -195,25 +369,119 @@ button:disabled {
 }
 
 .player-switch-screen h2 {
-	font-size: 28px;
+	font-size: 32px;
 	margin-bottom: 20px;
 }
 
 .player-switch-screen p {
-	font-size: 18px;
+	font-size: 20px;
 	margin-bottom: 30px;
+	max-width: 600px;
 }
 
 .player-switch-screen button {
-	padding: 12px 24px;
+	padding: 15px 32px;
 	background-color: white;
-	color: #1a73e8;
+	color: var(--primary-color);
 	border: none;
-	border-radius: 4px;
-	font-size: 16px;
+	border-radius: 8px;
+	font-size: 18px;
 	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
 .player-switch-screen button:hover {
 	background-color: #f0f0f0;
+	transform: scale(1.05);
+}
+
+/* Nút đặt lại tàu */
+.ship-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-left: 10px;
+}
+
+.reset-ship-button {
+	background-color: var(--accent-color);
+	color: white;
+	font-size: 12px;
+	padding: 4px 10px;
+	margin: 0;
+	border-radius: 4px;
+}
+
+.reset-ship-button:hover {
+	background-color: #d32f2f;
+}
+
+/* Hiệu ứng animation */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.battleship-game {
+	animation: fadeIn 0.5s ease;
+}
+
+@media screen and (min-width: 1000px) {
+	.placement-container {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-around;
+		align-items: center;
+		gap: 4rem;
+		width: 50rem;
+	}
+}
+
+/* Media queries cho thiết bị di động */
+@media (max-width: 768px) {
+	:root {
+		--cell-size: 30px;
+	}
+
+	.boards-container {
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.board-wrapper {
+		min-width: auto;
+		width: 100%;
+	}
+
+	.ship-selection-panel {
+		max-width: 100%;
+	}
+	.placement-container {
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+	}
+}
+
+@media (max-width: 576px) {
+	:root {
+		--cell-size: 26px;
+	}
+
+	.battleship-game h1 {
+		font-size: 24px;
+	}
+
+	.battleship-board {
+		padding: 4px;
+	}
+	.placement-container {
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+	}
 }

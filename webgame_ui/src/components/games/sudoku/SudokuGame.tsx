@@ -18,6 +18,10 @@ export default function Game() {
 		handleCheckSolution,
 		handleHint,
 		mistakes,
+		hintsRemaining,
+		feedback,
+		hasUserInput,
+		gameProgress,
 	} = useSudokuGame();
 
 	return (
@@ -33,6 +37,19 @@ export default function Game() {
 				/>
 			</div>
 
+			{feedback && (
+				<div
+					className={`w-full mb-4 p-3 rounded text-white text-center ${
+						feedback.type === "success"
+							? "bg-green-500"
+							: feedback.type === "error"
+								? "bg-red-500"
+								: "bg-blue-500"
+					}`}>
+					{feedback.message}
+				</div>
+			)}
+
 			<Controls
 				difficulty={difficulty}
 				setDifficulty={setDifficulty}
@@ -43,16 +60,30 @@ export default function Game() {
 				onHint={handleHint}
 				isSolving={isSolving}
 				isGameCompleted={isGameCompleted}
+				hintsRemaining={hintsRemaining}
+				gameProgress={gameProgress}
+				hasUserInput={hasUserInput}
 			/>
 
 			<div className="mt-4 text-center">
 				<p className="text-lg">
 					Mistakes:{" "}
 					<span className="font-bold text-red-600">{mistakes}</span>
+					<span className="ml-4">
+						Hints:{" "}
+						<span className="font-bold text-blue-600">
+							{hintsRemaining}
+						</span>
+					</span>
 				</p>
 				{isGameCompleted && (
 					<p className="text-xl font-bold text-green-600 mt-2">
 						Congratulations! You solved the puzzle!
+					</p>
+				)}
+				{!isGameCompleted && hasUserInput && (
+					<p className="text-sm text-gray-600 mt-2">
+						Progress: {gameProgress}%
 					</p>
 				)}
 			</div>

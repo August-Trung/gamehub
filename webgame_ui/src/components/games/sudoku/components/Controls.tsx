@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import ResetConfirmationDialog from "./ResetConfirmationDialog";
 
 interface ControlsProps {
 	difficulty: string;
@@ -10,6 +11,9 @@ interface ControlsProps {
 	onHint: () => void;
 	isSolving: boolean;
 	isGameCompleted: boolean;
+	hintsRemaining: number;
+	gameProgress: number;
+	hasUserInput: boolean;
 }
 
 const Controls: React.FC<ControlsProps> = ({
@@ -22,7 +26,27 @@ const Controls: React.FC<ControlsProps> = ({
 	onHint,
 	isSolving,
 	isGameCompleted,
+	hintsRemaining,
+	gameProgress,
+	hasUserInput,
 }) => {
+	const [showResetConfirmation, setShowResetConfirmation] = useState(false);
+
+	const handleResetClick = () => {
+		// Chỉ hiển thị xác nhận nếu người dùng đã thực sự bắt đầu chơi
+		if (hasUserInput) {
+			setShowResetConfirmation(true);
+		} else {
+			// Nếu chưa có nước đi nào, reset trực tiếp
+			onClear();
+		}
+	};
+
+	const handleConfirmReset = () => {
+		setShowResetConfirmation(false);
+		onClear();
+	};
+
 	return (
 		<div className="w-full space-y-4">
 			<div className="flex items-center justify-between">
@@ -84,10 +108,14 @@ const Controls: React.FC<ControlsProps> = ({
 
 			<div className="flex space-x-2">
 				<button
-					className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded"
+					className={`flex-1 py-2 rounded text-white ${
+						hintsRemaining > 0
+							? "bg-blue-500 hover:bg-blue-600"
+							: "bg-gray-400 cursor-not-allowed"
+					}`}
 					onClick={onHint}
-					disabled={isGameCompleted}>
-					Hint
+					disabled={isGameCompleted || hintsRemaining <= 0}>
+					Hint ({hintsRemaining})
 				</button>
 				<button
 					className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded"
@@ -98,9 +126,14 @@ const Controls: React.FC<ControlsProps> = ({
 
 			<div className="flex space-x-2">
 				<button
-					className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded"
-					onClick={onClear}>
-					Reset
+					className={`flex-1 ${
+						hasUserInput
+							? "bg-red-500 hover:bg-red-600"
+							: "bg-gray-400"
+					} text-white py-2 rounded`}
+					onClick={handleResetClick}
+					disabled={!hasUserInput && isGameCompleted}>
+					{hasUserInput ? "Reset" : "Clear Board"}
 				</button>
 				<button
 					className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded"
@@ -109,6 +142,14 @@ const Controls: React.FC<ControlsProps> = ({
 					{isSolving ? "Solving..." : "Solve"}
 				</button>
 			</div>
+
+			{/* Reset Confirmation Dialog */}
+			<ResetConfirmationDialog
+				isOpen={showResetConfirmation}
+				onConfirm={handleConfirmReset}
+				onCancel={() => setShowResetConfirmation(false)}
+				progress={gameProgress}
+			/>
 		</div>
 	);
 };

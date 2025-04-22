@@ -46,6 +46,18 @@ export const use2048Game = () => {
 	const [touchStart, setTouchStart] = useState<TouchPosition | null>(null);
 	const [touchEnd, setTouchEnd] = useState<TouchPosition | null>(null);
 
+	// Thêm state cho đồng hồ và tạm dừng
+	const [time, setTime] = useState<number>(0);
+	const [isPaused, setIsPaused] = useState<boolean>(false);
+	const [bestTime, setBestTime] = useState<number>(() => {
+		const savedBestTime = localStorage.getItem("2048-best-time");
+		return savedBestTime ? parseInt(savedBestTime) : 0;
+	});
+	const [bestScore, setBestScore] = useState<number>(() => {
+		const savedBestScore = localStorage.getItem("2048-best-score");
+		return savedBestScore ? parseInt(savedBestScore) : 0;
+	});
+
 	function addRandomTileToBoard(board: number[][]): number[][] {
 		const emptyTiles: TilePosition[] = [];
 
@@ -106,7 +118,7 @@ export const use2048Game = () => {
 	}
 
 	function handleKeyDown(direction: "up" | "right" | "down" | "left"): void {
-		if (gameOver) return;
+		if (gameOver || isPaused) return;
 
 		let newBoard = JSON.parse(JSON.stringify(board));
 		let moved = false;
@@ -198,7 +210,18 @@ export const use2048Game = () => {
 			setTimeout(() => {
 				const finalBoard = addRandomTile(newBoard);
 				setBoard(finalBoard);
-				setScore(score + addedScore);
+				const newScore = score + addedScore;
+				setScore(newScore);
+
+				// Cập nhật điểm cao nhất nếu cần
+				if (newScore > bestScore) {
+					setBestScore(newScore);
+					localStorage.setItem(
+						"2048-best-score",
+						newScore.toString()
+					);
+				}
+
 				setMovingTiles({});
 
 				// Set merge positions for animations
@@ -477,9 +500,17 @@ export const use2048Game = () => {
 		setMergePositions([]);
 		setNewTilePosition(null);
 		setMovingTiles({});
+		setTime(0);
+		setIsPaused(false);
+	}
+
+	function togglePause(): void {
+		setIsPaused(!isPaused);
 	}
 
 	const handleTouchStart = (e: React.TouchEvent): void => {
+		if (isPaused) return;
+
 		setTouchEnd(null);
 		setTouchStart({
 			x: e.targetTouches[0].clientX,
@@ -488,6 +519,8 @@ export const use2048Game = () => {
 	};
 
 	const handleTouchMove = (e: React.TouchEvent): void => {
+		if (isPaused) return;
+
 		setTouchEnd({
 			x: e.targetTouches[0].clientX,
 			y: e.targetTouches[0].clientY,
@@ -495,6 +528,7 @@ export const use2048Game = () => {
 	};
 
 	const handleTouchEnd = (): void => {
+		if (isPaused) return;
 		if (!touchStart || !touchEnd) return;
 
 		const xDiff = touchStart.x - touchEnd.x;
@@ -521,9 +555,18 @@ export const use2048Game = () => {
 		setTouchEnd(null);
 	};
 
+	// Format seconds to MM:SS
+	const formatTime = (seconds: number): string => {
+		const minutes = Math.floor(seconds / 60);
+		const remainingSeconds = seconds % 60;
+		return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+	};
+
 	// Handle keyboard events
 	useEffect(() => {
 		const handleKeyboardEvent = (e: KeyboardEvent): void => {
+			if (isPaused) return;
+
 			if (e.key === "ArrowUp") {
 				handleKeyDown("up");
 				e.preventDefault();
@@ -536,6 +579,9 @@ export const use2048Game = () => {
 			} else if (e.key === "ArrowLeft") {
 				handleKeyDown("left");
 				e.preventDefault();
+			} else if (e.key === "p" || e.key === "P") {
+				togglePause();
+				e.preventDefault();
 			}
 		};
 
@@ -544,18 +590,52 @@ export const use2048Game = () => {
 		return () => {
 			window.removeEventListener("keydown", handleKeyboardEvent);
 		};
-	}, [board, gameOver]);
+	}, [board, gameOver, isPaused]);
+
+	// Handle timer
+	useEffect(() => {
+		let timer: number | null = null;
+
+		if (!gameOver && !isPaused) {
+			timer = window.setInterval(() => {
+				setTime((prevTime) => {
+					const newTime = prevTime + 1;
+
+					// Cập nhật thời gian tốt nhất nếu cần
+					if (won && (bestTime === 0 || newTime < bestTime)) {
+						setBestTime(newTime);
+						localStorage.setItem(
+							"2048-best-time",
+							newTime.toString()
+						);
+					}
+
+					return newTime;
+				});
+			}, 1000);
+		}
+
+		return () => {
+			if (timer) clearInterval(timer);
+		};
+	}, [gameOver, isPaused, won]);
 
 	return {
 		board,
 		score,
+		bestScore,
 		gameOver,
 		won,
 		mergePositions,
 		newTilePosition,
 		movingTiles,
+		time,
+		formatTime,
+		bestTime,
+		isPaused,
 		handleKeyDown,
 		resetGame,
+		togglePause,
 		handleTouchStart,
 		handleTouchMove,
 		handleTouchEnd,

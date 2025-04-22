@@ -1,12 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
 import { useWinCheck } from "./useWinCheck";
+import { useTimer, TimerConfig } from "./useTimer";
 
 type Player = "X" | "O";
 type BoardState = string[][];
-type HistoryEntry = {
-	board: BoardState;
-	currentPlayer: Player;
-};
 
 export const useCaroGame = () => {
 	const [boardSize, setBoardSize] = useState<number>(15);
@@ -17,14 +14,12 @@ export const useCaroGame = () => {
 		null
 	);
 
-	// Game history for undo/redo functionality
-	const [gameHistory, setGameHistory] = useState<HistoryEntry[]>([
-		{
-			board: createEmptyBoard(boardSize),
-			currentPlayer: "X",
-		},
-	]);
-	const [historyPosition, setHistoryPosition] = useState<number>(0);
+	const timerConfig: TimerConfig = {
+		initialTime: 5 * 60, // 5 phút
+		timeIncrement: 0, // Không sử dụng tăng thời gian để tránh lỗi
+	};
+
+	const timer = useTimer(timerConfig);
 
 	const { checkWin } = useWinCheck();
 
@@ -36,14 +31,20 @@ export const useCaroGame = () => {
 	// Handle a cell click
 	const handleCellClick = useCallback(
 		(row: number, col: number) => {
-			// Don't allow moves if there's a winner or cell is already filled
-			if (winner || board[row][col]) return;
+			// Không cho phép đánh khi có người thắng, hết giờ, hoặc ô đã được đánh
+			if (
+				winner ||
+				timer.hasTimeOut ||
+				board[row][col] ||
+				!timer.isRunning
+			)
+				return;
 
-			// Create a new board with the move
+			// Tạo bàn cờ mới với nước đi
 			const newBoard = board.map((rowArray) => [...rowArray]);
 			newBoard[row][col] = currentPlayer;
 
-			// Check for a win
+			// Kiểm tra thắng
 			const { isWin, winLine } = checkWin(
 				newBoard,
 				row,
@@ -54,22 +55,20 @@ export const useCaroGame = () => {
 			if (isWin) {
 				setWinner(currentPlayer);
 				setWinningLine(winLine);
+				timer.stopTimer(); // Dừng đồng hồ nếu có người thắng
+				setBoard(newBoard);
+				return;
 			}
 
-			// Update state
+			// Cập nhật trạng thái
 			setBoard(newBoard);
-			setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
+			const nextPlayer = currentPlayer === "X" ? "O" : "X";
+			setCurrentPlayer(nextPlayer);
 
-			// Update history
-			const newHistory = gameHistory.slice(0, historyPosition + 1);
-			newHistory.push({
-				board: newBoard,
-				currentPlayer: currentPlayer === "X" ? "O" : "X",
-			});
-			setGameHistory(newHistory);
-			setHistoryPosition(historyPosition + 1);
+			// Chuyển đồng hồ sang người chơi tiếp theo
+			timer.switchPlayer(nextPlayer);
 		},
-		[board, currentPlayer, winner, gameHistory, historyPosition, checkWin]
+		[board, currentPlayer, winner, checkWin, timer]
 	);
 
 	// Restart the game
@@ -79,92 +78,33 @@ export const useCaroGame = () => {
 		setCurrentPlayer("X");
 		setWinner(null);
 		setWinningLine(null);
-		setGameHistory([{ board: emptyBoard, currentPlayer: "X" }]);
-		setHistoryPosition(0);
-	}, [boardSize]);
+		timer.resetTimer();
+	}, [boardSize, timer]);
 
 	// Handle board size change
 	const handleBoardSizeChange = useCallback((size: number) => {
 		setBoardSize(size);
 	}, []);
 
-	// Undo the last move
-	const handleUndo = useCallback(() => {
-		if (historyPosition > 0) {
-			const newPosition = historyPosition - 1;
-			const { board: prevBoard, currentPlayer: prevPlayer } =
-				gameHistory[newPosition];
-
-			setBoard(prevBoard);
-			setCurrentPlayer(prevPlayer);
-			setHistoryPosition(newPosition);
-			setWinner(null);
-			setWinningLine(null);
-		}
-	}, [historyPosition, gameHistory]);
-
-	// Redo a previously undone move
-	const handleRedo = useCallback(() => {
-		if (historyPosition < gameHistory.length - 1) {
-			const newPosition = historyPosition + 1;
-			const { board: nextBoard, currentPlayer: nextPlayer } =
-				gameHistory[newPosition];
-
-			setBoard(nextBoard);
-			setCurrentPlayer(nextPlayer);
-			setHistoryPosition(newPosition);
-
-			// Check if this was a winning move
-			if (
-				newPosition === gameHistory.length - 1 &&
-				gameHistory.length > 1
-			) {
-				// Find the last move to check for win
-				let lastRow = -1;
-				let lastCol = -1;
-				const prevBoard = gameHistory[newPosition - 1].board;
-				const lastPlayer = nextPlayer === "X" ? "O" : "X";
-
-				for (let i = 0; i < boardSize; i++) {
-					for (let j = 0; j < boardSize; j++) {
-						if (nextBoard[i][j] !== prevBoard[i][j]) {
-							lastRow = i;
-							lastCol = j;
-							break;
-						}
-					}
-					if (lastRow !== -1) break;
-				}
-
-				if (lastRow !== -1) {
-					const { isWin, winLine } = checkWin(
-						nextBoard,
-						lastRow,
-						lastCol,
-						lastPlayer
-					);
-					if (isWin) {
-						setWinner(lastPlayer);
-						setWinningLine(winLine);
-					}
-				}
-			}
-		}
-	}, [historyPosition, gameHistory, boardSize, checkWin]);
+	const startGame = useCallback(() => {
+		timer.startTimer();
+	}, [timer]);
 
 	return {
 		board,
 		currentPlayer,
 		winner,
 		winningLine,
-		gameHistory,
-		historyPosition,
 		boardSize,
 		handleCellClick,
 		handleRestart,
-		handleUndo,
-		handleRedo,
 		handleBoardSizeChange,
+		timeX: timer.formattedTimeX,
+		timeO: timer.formattedTimeO,
+		isTimerRunning: timer.isRunning,
+		hasTimeOut: timer.hasTimeOut,
+		timeOutPlayer: timer.timeOutPlayer,
+		startGame,
 	};
 };
 

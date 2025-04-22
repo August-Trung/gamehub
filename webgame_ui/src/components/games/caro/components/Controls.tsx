@@ -2,20 +2,12 @@ import React from "react";
 
 interface ControlsProps {
 	onRestart: () => void;
-	onUndo: () => void;
-	onRedo: () => void;
-	canUndo: boolean;
-	canRedo: boolean;
 	boardSize: number;
 	onBoardSizeChange: (size: number) => void;
 }
 
 const Controls: React.FC<ControlsProps> = ({
 	onRestart,
-	onUndo,
-	onRedo,
-	canUndo,
-	canRedo,
 	boardSize,
 	onBoardSizeChange,
 }) => {
@@ -27,23 +19,6 @@ const Controls: React.FC<ControlsProps> = ({
 				onClick={onRestart}>
 				New Game
 			</button>
-
-			{/* Undo/Redo buttons in a row */}
-			<div className="flex gap-2">
-				<button
-					className={`flex-1 py-2 px-4 rounded ${canUndo ? "bg-blue-500 hover:bg-blue-600 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
-					onClick={onUndo}
-					disabled={!canUndo}>
-					Undo
-				</button>
-
-				<button
-					className={`flex-1 py-2 px-4 rounded ${canRedo ? "bg-blue-500 hover:bg-blue-600 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
-					onClick={onRedo}
-					disabled={!canRedo}>
-					Redo
-				</button>
-			</div>
 
 			{/* Board Size selection */}
 			<div>

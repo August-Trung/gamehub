@@ -211,6 +211,51 @@ export const useBattleshipGame = () => {
 		setSelectedShip(null);
 	};
 
+	// Thêm hàm reset tàu đã đặt
+	const resetShipPlacement = (shipId: number) => {
+		const currentBoard =
+			gamePhase === "placement1" ? player1Board : player2Board;
+		const currentShips =
+			gamePhase === "placement1" ? player1Ships : player2Ships;
+
+		// Tìm tàu cần reset
+		const shipToReset = currentShips.find((ship) => ship.id === shipId);
+
+		if (!shipToReset || !shipToReset.placed) return;
+
+		// Xóa tàu khỏi bảng
+		const newBoard = [...currentBoard];
+		shipToReset.positions.forEach((pos) => {
+			newBoard[pos.y][pos.x] = {
+				hasShip: false,
+				isHit: false,
+				isMiss: false,
+			};
+		});
+
+		// Cập nhật trạng thái tàu
+		const updatedShips = currentShips.map((ship) =>
+			ship.id === shipId
+				? { ...ship, placed: false, positions: [] }
+				: ship
+		);
+
+		// Cập nhật state
+		if (gamePhase === "placement1") {
+			setPlayer1Board(newBoard);
+			setPlayer1Ships(updatedShips);
+		} else {
+			setPlayer2Board(newBoard);
+			setPlayer2Ships(updatedShips);
+		}
+
+		// Chọn lại tàu để đặt
+		const resetShip = updatedShips.find((ship) => ship.id === shipId);
+		if (resetShip) {
+			setSelectedShip(resetShip);
+		}
+	};
+
 	// Xoay tàu đang chọn
 	const handleShipRotate = () => {
 		if (selectedShip) {
@@ -378,6 +423,7 @@ export const useBattleshipGame = () => {
 		handleCellClick,
 		handleShipSelect,
 		handleShipRotate,
+		resetShipPlacement,
 		nextPhase,
 		confirmPlayerSwitch,
 		resetGame,

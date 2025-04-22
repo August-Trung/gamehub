@@ -9,6 +9,7 @@ interface GameBoardProps {
 	handleTouchStart: (e: React.TouchEvent) => void;
 	handleTouchMove: (e: React.TouchEvent) => void;
 	handleTouchEnd: () => void;
+	isPaused?: boolean; // Thêm prop cho trạng thái tạm dừng
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
@@ -18,12 +19,24 @@ const GameBoard: React.FC<GameBoardProps> = ({
 	handleTouchStart,
 	handleTouchMove,
 	handleTouchEnd,
+	isPaused = false,
 }) => {
+	// Thêm các hàm xử lý ngăn chặn sự kiện mặc định
+	const handleTouchStartPrevent = (e: React.TouchEvent) => {
+		e.preventDefault();
+		handleTouchStart(e);
+	};
+
+	const handleTouchMovePrevent = (e: React.TouchEvent) => {
+		e.preventDefault();
+		handleTouchMove(e);
+	};
+
 	return (
 		<div
 			className="bg-gray-300 p-4 rounded-lg relative"
-			onTouchStart={handleTouchStart}
-			onTouchMove={handleTouchMove}
+			onTouchStart={handleTouchStartPrevent}
+			onTouchMove={handleTouchMovePrevent}
 			onTouchEnd={handleTouchEnd}>
 			{/* Grid background */}
 			<div className="grid grid-cols-4 gap-2">
@@ -67,6 +80,15 @@ const GameBoard: React.FC<GameBoardProps> = ({
 					)}
 				</div>
 			</div>
+
+			{/* Overlay khi tạm dừng */}
+			{isPaused && (
+				<div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+					<div className="text-white text-2xl font-bold">
+						TẠM DỪNG
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };

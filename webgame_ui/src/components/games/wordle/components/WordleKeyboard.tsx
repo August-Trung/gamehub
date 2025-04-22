@@ -40,11 +40,16 @@ export default function WordleKeyboard({
 									? "px-3 text-sm"
 									: "w-8"
 							} h-10 mx-1 flex items-center justify-center font-medium rounded transition-colors duration-300 transform hover:scale-105 active:scale-95 ${getKeyColor(key)}`}
-							onClick={() =>
-								onKeyPress(
-									key === "Backspace" ? "Backspace" : key
-								)
-							}>
+							onClick={(e) => {
+								// Prevent event propagation
+								e.stopPropagation();
+								// Handle the key press
+								if (key === "Backspace") {
+									onKeyPress("Backspace");
+								} else {
+									onKeyPress(key);
+								}
+							}}>
 							{key === "Backspace" ? "←" : key}
 						</button>
 					))}

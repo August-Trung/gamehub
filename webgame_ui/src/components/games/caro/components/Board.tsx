@@ -14,9 +14,12 @@ const Board: React.FC<BoardProps> = ({
 	onCellClick,
 	boardSize,
 }) => {
-	// Calculate cell size based on board size
-	// Smaller boards get larger cells, larger boards get smaller cells
-	const cellSize = boardSize <= 10 ? 32 : boardSize <= 15 ? 28 : 24;
+	// Calculate container width based on viewport
+	// Use responsive sizing that scales down on smaller screens
+	const containerSize = Math.min(window.innerWidth - 32, 600);
+
+	// Calculate cell size dynamically based on container size and board size
+	const cellSize = Math.floor(containerSize / boardSize);
 
 	return (
 		<div

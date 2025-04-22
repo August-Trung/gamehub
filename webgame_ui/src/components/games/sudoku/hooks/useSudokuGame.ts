@@ -22,8 +22,62 @@ export const useSudokuGame = () => {
 	const [isSolving, setIsSolving] = useState<boolean>(false);
 	const [noteMode, setNoteMode] = useState<boolean>(false);
 	const [mistakes, setMistakes] = useState<number>(0);
+	const [hintsRemaining, setHintsRemaining] = useState<number>(0);
+	const [feedback, setFeedback] = useState<{
+		message: string;
+		type: "success" | "error" | "info";
+	} | null>(null);
 
 	const { generatePuzzle, isValidMove } = useSudokuSolver();
+
+	const hasUserInput = useCallback(() => {
+		return board.some((row) =>
+			row.some(
+				(cell) =>
+					!cell.isFixed &&
+					(cell.value !== null || cell.notes.length > 0)
+			)
+		);
+	}, [board]);
+
+	// Tính phần trăm hoàn thành
+	const calculateGameProgress = useCallback(() => {
+		// Đếm số ô đã điền giá trị
+		let filledCells = 0;
+		// Đếm tổng số ô cần điền (không tính các ô cố định ban đầu)
+		let totalCellsToFill = 0;
+
+		board.forEach((row) => {
+			row.forEach((cell) => {
+				if (!cell.isFixed) {
+					totalCellsToFill++;
+					if (cell.value !== null) {
+						filledCells++;
+					}
+				}
+			});
+		});
+
+		// Tránh chia cho 0
+		if (totalCellsToFill === 0) return 0;
+
+		return Math.round((filledCells / totalCellsToFill) * 100);
+	}, [board]);
+
+	const getHintCountForDifficulty = useCallback((diff: string): number => {
+		switch (diff) {
+			case "easy":
+				return 5;
+			case "medium":
+				return 3;
+			case "hard":
+				return 2;
+			case "expert":
+				return 1;
+			default:
+				return 3;
+		}
+	}, []);
 
 	// Initialize a new game
 	const initializeGame = useCallback(() => {
@@ -43,8 +97,8 @@ export const useSudokuGame = () => {
 		setSolution(generatedSolution);
 		setIsGameCompleted(false);
 		setMistakes(0);
-	}, [difficulty, generatePuzzle]);
-
+		setHintsRemaining(getHintCountForDifficulty(difficulty));
+	}, [difficulty, generatePuzzle, getHintCountForDifficulty]);
 	// Handle creating a new game
 	const handleNewGame = useCallback(() => {
 		initializeGame();
@@ -200,12 +254,56 @@ export const useSudokuGame = () => {
 
 	// Handle checking the current solution
 	const handleCheckSolution = useCallback(() => {
-		validateBoard();
-	}, [validateBoard]);
+		const hasUserInput = board.some((row) =>
+			row.some((cell) => !cell.isFixed && cell.value !== null)
+		);
+		if (!hasUserInput) {
+			setFeedback({
+				message: "You haven't started playing yet!",
+				type: "info",
+			});
+			setTimeout(() => setFeedback(null), 3000);
+			return;
+		}
+		// Check the board
+		const validatedBoard = validateBoard();
+		// Count errors
+		let errorCount = 0;
+		validatedBoard.forEach((row) => {
+			row.forEach((cell) => {
+				if (cell.value !== null && !cell.isValid) {
+					errorCount++;
+				}
+			});
+		});
+		// Check if the game is complete
+		const isComplete = validatedBoard.every((row) =>
+			row.every((cell) => cell.value !== null)
+		);
+		// Give appropriate feedback
+		if (errorCount > 0) {
+			setFeedback({
+				message: `There is ${errorCount} error${errorCount > 1 ? "s" : ""} in your solution!`,
+				type: "error",
+			});
+		} else if (isComplete) {
+			setFeedback({
+				message: "Congratulations! Your solution is correct!",
+				type: "success",
+			});
+			setIsGameCompleted(true);
+		} else {
+			setFeedback({
+				message: "So far so good! Keep going...",
+				type: "success",
+			});
+		} // Clear feedback after 3 seconds
+		setTimeout(() => setFeedback(null), 3000);
+	}, [board, validateBoard]);
 
 	// Handle giving a hint
 	const handleHint = useCallback(() => {
-		if (!selectedCell || isGameCompleted) return;
+		if (!selectedCell || isGameCompleted || hintsRemaining <= 0) return;
 
 		const { row, col } = selectedCell;
 		const cell = board[row][col];
@@ -222,8 +320,16 @@ export const useSudokuGame = () => {
 		};
 
 		setBoard(newBoard);
+		setHintsRemaining((prev) => prev - 1);
 		checkCompletion();
-	}, [selectedCell, board, solution, isGameCompleted, checkCompletion]);
+	}, [
+		selectedCell,
+		board,
+		solution,
+		isGameCompleted,
+		checkCompletion,
+		hintsRemaining,
+	]);
 
 	// Handle keyboard events for navigation and input
 	useEffect(() => {
@@ -280,12 +386,16 @@ export const useSudokuGame = () => {
 		isSolving,
 		noteMode,
 		mistakes,
+		hintsRemaining,
+		feedback,
 		handleCellValueChange,
 		handleNewGame,
 		handleSolve,
 		handleClear,
 		handleCheckSolution,
 		handleHint,
+		hasUserInput: hasUserInput(),
+		gameProgress: calculateGameProgress(),
 	};
 };
 
