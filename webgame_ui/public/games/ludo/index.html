@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Cờ Cá Ngựa</title>
+		<link rel="stylesheet" href="./Style.css" />
+	</head>
+	<body>
+		<h1>Cờ Cá Ngựa (Chơi với Máy)</h1>
+
+		<div id="game-setup">
+			<label for="difficulty">Chọn độ khó:</label>
+			<select id="difficulty">
+				<option value="easy">Dễ (Easy)</option>
+				<option value="normal" selected>Thường (Normal)</option>
+				<option value="hard">Khó (Hard)</option>
+			</select>
+			<button id="start-game">Bắt đầu chơi</button>
+		</div>
+
+		<div id="game-container" class="hidden">
+			<div id="board">
+				<!-- Các ô vuông sẽ được tạo bằng JS -->
+				<!-- Khu vực chuồng ngựa -->
+				<div class="stable" id="stable-red">
+					<div class="stable-inner">Chuồng Đỏ</div>
+				</div>
+				<div class="stable" id="stable-blue">
+					<div class="stable-inner">Chuồng Xanh</div>
+				</div>
+				<div class="stable" id="stable-green">
+					<div class="stable-inner">Chuồng Lục</div>
+				</div>
+				<div class="stable" id="stable-yellow">
+					<div class="stable-inner">Chuồng Vàng</div>
+				</div>
+
+				<!-- Khu vực về đích -->
+				<div class="home-area" id="home-area-red"></div>
+				<div class="home-area" id="home-area-blue"></div>
+				<div class="home-area" id="home-area-green"></div>
+				<div class="home-area" id="home-area-yellow"></div>
+
+				<!-- Trung tâm -->
+				<div id="center-area">Đích</div>
+
+				<!-- Quân cờ sẽ được tạo bằng JS -->
+			</div>
+
+			<div id="controls">
+				<div id="dice-area">
+					<div id="dice">?</div>
+				</div>
+				<button id="roll-button" disabled>Tung Xúc Xắc</button>
+				<div id="message-area">Chọn độ khó và nhấn Bắt đầu.</div>
+				<div id="turn-indicator">
+					Lượt của: <span id="current-player"></span>
+				</div>
+			</div>
+		</div>
+		<div class="credits">Cờ Cá Ngựa adapted from Nguyen Khiet</div>
+
+		<script src="Script.js"></script>
+	</body>
+</html>

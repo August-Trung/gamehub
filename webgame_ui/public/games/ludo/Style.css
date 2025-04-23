@@ -1,19 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 body {
+	font-family: sans-serif;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background: transparent;
 	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-		"Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-		"Helvetica Neue", sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-code {
-	font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-		monospace;
+	padding: 20px;
+	overflow: hidden;
 }
 
 #game-setup {
@@ -34,13 +27,14 @@ code {
 
 #game-container {
 	display: flex;
-	align-items: flex-start;
-	gap: 30px;
+	flex-direction: column; /* Stack elements vertically on mobile */
+	align-items: center;
+	width: 100%;
 }
 
 #board {
-	width: 600px; /* 15 * 40px */
-	height: 600px; /* 15 * 40px */
+	width: min(600px, 100vw - 20px); /* Responsive width */
+	height: min(600px, 100vw - 20px); /* Keep board square */
 	border: 3px solid #333;
 	position: relative;
 	background-color: #fff;
@@ -294,4 +288,59 @@ code {
 
 .hidden {
 	display: none;
+}
+
+/* Media query for tablets and larger screens */
+@media (min-width: 768px) {
+	#game-container {
+		flex-direction: row;
+		align-items: flex-start;
+		justify-content: center;
+		gap: 20px;
+	}
+}
+
+/* Adjust piece sizes for smaller screens */
+@media (max-width: 480px) {
+	.square {
+		width: calc((100vw - 20px) / 15);
+		height: calc((100vw - 20px) / 15);
+		font-size: 8px;
+	}
+
+	.piece {
+		width: calc(((100vw - 20px) / 15) * 0.8);
+		height: calc(((100vw - 20px) / 15) * 0.8);
+	}
+
+	.stable {
+		width: calc(((100vw - 20px) / 15) * 6);
+		height: calc(((100vw - 20px) / 15) * 6);
+	}
+
+	#center-area {
+		width: calc(((100vw - 20px) / 15) * 3);
+		height: calc(((100vw - 20px) / 15) * 3);
+		font-size: 1.2em;
+	}
+}
+
+.credits {
+	position: relative;
+	margin-top: 10px;
+	padding: 5px 0;
+	font-size: 12px;
+	right: 0;
+	font-style: italic;
+	color: #888;
+	opacity: 0.8;
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	-khtml-user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-user-drag: none;
+	-khtml-user-drag: none;
 }

@@ -25,7 +25,7 @@ export default function GameHub(): JSX.Element {
 		{ id: "tetrisGame", name: "TetrisGame", component: <TetrisGame /> },
 		{ id: "chessGame", name: "ChessGame", component: <ChessGame /> },
 		{ id: "hangmanGame", name: "HangmanGame", component: <HangmanGame /> },
-		{ id: "ludoGame", name: "LudoGame", component: <LudoGame /> },
+		{ id: "ludo", name: "Ludo", component: <LudoGame /> },
 	];
 
 	const handleBackToMenu = () => {
