@@ -10,19 +10,60 @@ body {
 }
 
 #game-setup {
-	margin-bottom: 20px;
-	background-color: white;
-	padding: 15px;
-	border-radius: 8px;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	width: 100%;
+	max-width: 360px; /* Giới hạn chiều ngang */
+	margin: 0 0 20px 0; /* Căn giữa và cách dưới */
+	padding: 20px;
+	background: #ffffff;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	display: grid;
+	grid-template-columns: 1fr 1fr; /* 2 cột cho label + select */
+	grid-template-rows: auto 1fr; /* hàng 1: độ khó, hàng 2: nút */
+	gap: 12px;
 }
 
-#game-setup label,
-#game-setup select,
-#game-setup button {
-	margin: 5px;
-	padding: 8px 12px;
+/* Label và select */
+#game-setup label {
+	align-self: center;
+	font-weight: 600;
+	color: #333;
+}
+#game-setup select {
+	width: 100%;
+	padding: 8px 10px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
 	font-size: 1em;
+	transition: border 0.2s;
+}
+#game-setup select:focus {
+	border-color: #2196f3;
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+/* Nút Bắt đầu */
+#game-setup button#start-game {
+	grid-column: span 2; /* chiếm cả hai cột */
+	padding: 12px;
+	font-size: 1em;
+	font-weight: 600;
+	background: linear-gradient(135deg, #2196f3, #42a5f5);
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	transition:
+		background 0.3s,
+		transform 0.1s;
+}
+#game-setup button#start-game:hover {
+	background: linear-gradient(135deg, #1e88e5, #2196f3);
+	transform: translateY(-2px);
+}
+#game-setup button#start-game:active {
+	transform: translateY(0);
 }
 
 #game-container {
@@ -95,8 +136,8 @@ body {
 }
 
 .stable {
-	width: 240px; /* 6 ô * 40px */
-	height: 240px; /* 6 ô * 40px */
+	width: calc(6 / 15 * 100%); /* 6 ô trên tổng 15 ô => 40% */
+	height: calc(6 / 15 * 100%); /* cũng 40% */
 	border: 2px solid;
 	position: absolute;
 	display: flex; /* Cho phép dùng flexbox cho .stable-inner */
@@ -105,6 +146,7 @@ body {
 	box-sizing: border-box;
 	z-index: 0; /* Dưới các ô vuông */
 }
+
 .stable-inner {
 	width: 90%; /* Điều chỉnh để vừa mắt */
 	height: 90%;
@@ -129,21 +171,21 @@ body {
 }
 #stable-blue {
 	top: 0px; /* Hàng 0-5 */
-	left: 360px; /* Cột 9-14 (6 ô) */
+	left: calc(9 / 15 * 100%); /* Cột 9-14 (6 ô) */
 	border-color: blue;
 	background-color: #ddddff;
 	color: blue;
 }
 #stable-green {
-	top: 360px; /* Hàng 9-14 */
-	left: 360px; /* Cột 9-14 */
+	top: calc(9 / 15 * 100%); /* 9 ô dịch xuống = 60% */
+	left: calc(9 / 15 * 100%);
 	border-color: green;
 	background-color: #ddffdd;
 	color: green;
 }
 #stable-yellow {
-	top: 360px; /* Hàng 9-14 */
-	left: 0px; /* Cột 0-5 */
+	top: calc(9 / 15 * 100%);
+	left: 0;
 	border-color: #ccad00;
 	background-color: #ffffdd;
 	color: #ccad00;
@@ -156,12 +198,15 @@ body {
 	/* Có thể xóa bỏ hoặc để trống */
 }
 
+/* Dùng chung cho mọi kích thước */
 #center-area {
 	position: absolute;
-	width: 120px; /* 3 ô * 40px */
-	height: 120px; /* 3 ô * 40px */
-	top: 240px; /* Hàng 6-8 (Bắt đầu từ 6*40) */
-	left: 240px; /* Cột 6-8 (Bắt đầu từ 6*40) */
+	/* 3 ô trên tổng 15 ô => 3/15 = 20% */
+	width: calc(3 / 15 * 100%);
+	height: calc(3 / 15 * 100%);
+	/* Bắt đầu ở ô thứ 6 (0-based) => 6/15 ≈ 40% */
+	top: calc(6 / 15 * 100%);
+	left: calc(6 / 15 * 100%);
 	background-color: #ddd;
 	display: flex;
 	justify-content: center;
@@ -196,8 +241,12 @@ body {
 	box-shadow: 0 0 8px 4px gold;
 	cursor: pointer;
 	/* Thêm hiệu ứng scale nhẹ khi highlight nếu muốn */
-	/* transform: scale(1.1); */
-	/* transition: top 0.3s ease, left 0.3s ease, box-shadow 0.2s ease, transform 0.2s ease; */
+	transform: scale(1.1);
+	transition:
+		top 0.3s ease,
+		left 0.3s ease,
+		box-shadow 0.2s ease,
+		transform 0.2s ease;
 }
 
 /* Style cho quân cờ trong chuồng */
@@ -236,14 +285,6 @@ body {
 #dice {
 	width: 60px;
 	height: 60px;
-	border: 2px solid #666;
-	border-radius: 5px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-size: 2em;
-	font-weight: bold;
-	background-color: #f9f9f9;
 }
 
 #roll-button {
@@ -257,16 +298,41 @@ body {
 	opacity: 0.6;
 }
 
+#dice-area,
+#roll-button,
+#message-area,
+#turn-indicator {
+	flex: none;
+	margin: 0;
+}
+
 #message-area {
 	margin-top: 10px;
 	padding: 10px;
 	background-color: #e7f3fe;
-	border-left: 5px solid #2196f3;
+	border-left: 4px solid currentColor;
 	min-height: 40px;
 	width: 90%;
 	text-align: center;
 	font-style: italic;
 	font-size: 0.95em; /* Cho nhỏ lại chút nếu cần */
+}
+
+#message-area.red {
+	color: red;
+	background-color: #fdecea;
+}
+#message-area.blue {
+	color: blue;
+	background-color: #e7f3fe;
+}
+#message-area.green {
+	color: green;
+	background-color: #e7ffe7;
+}
+#message-area.yellow {
+	color: #ccad00;
+	background-color: #fff8e7;
 }
 
 #turn-indicator {
@@ -293,10 +359,48 @@ body {
 /* Media query for tablets and larger screens */
 @media (min-width: 768px) {
 	#game-container {
+		display: flex;
 		flex-direction: row;
 		align-items: flex-start;
 		justify-content: center;
 		gap: 20px;
+	}
+
+	#message-area {
+		font-size: 0.9em;
+		line-height: 1.4;
+		padding: 10px;
+		border-left: 4px solid currentColor;
+		border-radius: 6px;
+	}
+
+	#controls {
+		/* cố định chiều ngang, không cho thay đổi width */
+		flex: 0 0 240px; /* flex-grow:0; flex-shrink:0; flex-basis:240px */
+		width: 240px; /* hoặc chọn giá trị phù hợp */
+		max-height: calc(
+			100vh - 40px
+		); /* Optional: giới hạn chiều cao controls */
+		overflow: hidden; /* ẩn phần tràn chung */
+		display: flex;
+		flex-direction: column;
+	}
+
+	/* Cho phần #message-area chỉ scroll nội dung dài */
+	#message-area {
+		flex: none; /* không chiếm hết không gian */
+		min-height: 3em; /* giữ chỗ tối thiểu */
+		max-height: 6em; /* chiều cao tối đa */
+		overflow-y: auto; /* scroll khi quá dài */
+		overflow-x: hidden; /* tránh giật ngang */
+	}
+
+	/* Đảm bảo các phần còn lại co giãn đều */
+	#dice-area,
+	#roll-button,
+	#turn-indicator {
+		flex: none;
+		margin: 0;
 	}
 }
 
@@ -305,7 +409,7 @@ body {
 	.square {
 		width: calc((100vw - 20px) / 15);
 		height: calc((100vw - 20px) / 15);
-		font-size: 8px;
+		font-size: 6px;
 	}
 
 	.piece {
@@ -314,20 +418,107 @@ body {
 	}
 
 	.stable {
-		width: calc(((100vw - 20px) / 15) * 6);
-		height: calc(((100vw - 20px) / 15) * 6);
+		/* 5 ô trên tổng 15 ô -> 33.33% */
+		width: calc(5 / 15 * 100%);
+		height: calc(5 / 15 * 100%);
+	}
+	/* Dịch lại vị trí các stable nếu muốn giữ sát góc */
+	#stable-red {
+		top: 0;
+		left: 0;
+	}
+	#stable-blue {
+		top: 0;
+		left: calc(10 / 15 * 100%); /* sau khi stable rộng 5 ô, path còn 10 ô */
+	}
+	#stable-green {
+		top: calc(10 / 15 * 100%);
+		left: calc(10 / 15 * 100%);
+	}
+	#stable-yellow {
+		top: calc(10 / 15 * 100%);
+		left: 0;
 	}
 
 	#center-area {
 		width: calc(((100vw - 20px) / 15) * 3);
 		height: calc(((100vw - 20px) / 15) * 3);
-		font-size: 1.2em;
+		font-size: 1em;
 	}
+
+	.piece.in-stable {
+		width: calc(((100vw - 20px) / 15) * 0.6);
+		height: calc(((100vw - 20px) / 15) * 0.6);
+	}
+
+	#controls {
+		width: 100%;
+		max-width: 360px;
+		margin: 10px 0 0 0;
+		padding: 15px;
+		margin-left: 0px;
+		background-color: #fff;
+		border-radius: 12px;
+		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+		display: grid; /* Sử dụng grid để dễ bố cục */
+		grid-template-rows: auto auto auto auto;
+		row-gap: 12px;
+	}
+
+	#dice-area {
+		display: flex;
+		justify-content: center;
+	}
+
+	#dice {
+		width: 50px;
+		height: 50px;
+		font-size: 1.8em;
+	}
+
+	#roll-button {
+		width: 100%;
+		padding: 12px;
+		font-size: 1.1em;
+		border-radius: 8px;
+		background: linear-gradient(135deg, #4caf50, #66bb6a);
+		color: #fff;
+		border: none;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	#roll-button:disabled {
+		background: #ccc;
+		color: #666;
+	}
+
+	#turn-indicator {
+		text-align: center;
+		font-size: 1em;
+	}
+
+	#message-area {
+		font-size: 0.9em;
+		line-height: 1.4;
+		padding: 10px;
+		border-left: 4px solid currentColor;
+		border-radius: 6px;
+	}
+
+	#game-setup {
+		grid-template-columns: 1fr; /* 1 cột trên mobile */
+	}
+	#game-setup button#start-game {
+		padding: 14px;
+	}
+}
+
+.ludo-title {
+	margin: 0 0 3px 0;
 }
 
 .credits {
 	position: relative;
-	margin-top: 10px;
 	padding: 5px 0;
 	font-size: 12px;
 	right: 0;
@@ -343,4 +534,21 @@ body {
 	-webkit-touch-callout: none;
 	-webkit-user-drag: none;
 	-khtml-user-drag: none;
+}
+
+#dice-svg.spin {
+	animation: dice-spin 0.6s ease-out;
+}
+
+/* Định nghĩa keyframes */
+@keyframes dice-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	50% {
+		transform: rotate(360deg);
+	}
+	to {
+		transform: rotate(0deg);
+	}
 }

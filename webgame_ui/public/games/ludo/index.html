@@ -7,7 +7,8 @@
 		<link rel="stylesheet" href="./Style.css" />
 	</head>
 	<body>
-		<h1>Cờ Cá Ngựa (Chơi với Máy)</h1>
+		<h1 class="ludo-title">Cờ Cá Ngựa (Chơi với Máy)</h1>
+		<div class="credits">Based on work by Nguyen Khiet. Modified by AT.</div>
 
 		<div id="game-setup">
 			<label for="difficulty">Chọn độ khó:</label>
@@ -50,7 +51,71 @@
 
 			<div id="controls">
 				<div id="dice-area">
-					<div id="dice">?</div>
+					<div id="dice">
+						<svg
+							id="dice-svg"
+							viewBox="0 0 100 100"
+							xmlns="http://www.w3.org/2000/svg">
+							<!-- Background hình vuông bo góc -->
+							<rect
+								width="100"
+								height="100"
+								rx="15"
+								ry="15"
+								fill="#fff"
+								stroke="#333"
+								stroke-width="4" />
+							<!-- 6 mặt chấm, mỗi face là group g nào đó, ta sẽ hiện bằng JS -->
+							<g id="face-1" class="dice-face">
+								<circle cx="50" cy="50" r="8" fill="#333" />
+							</g>
+							<g
+								id="face-2"
+								class="dice-face"
+								style="display: none">
+								<circle cx="30" cy="30" r="8" fill="#333" />
+								<circle cx="70" cy="70" r="8" fill="#333" />
+							</g>
+							<g
+								id="face-3"
+								class="dice-face"
+								style="display: none">
+								<circle cx="30" cy="30" r="8" fill="#333" />
+								<circle cx="50" cy="50" r="8" fill="#333" />
+								<circle cx="70" cy="70" r="8" fill="#333" />
+							</g>
+							<g
+								id="face-4"
+								class="dice-face"
+								style="display: none">
+								<circle cx="30" cy="30" r="8" fill="#333" />
+								<circle cx="30" cy="70" r="8" fill="#333" />
+								<circle cx="70" cy="30" r="8" fill="#333" />
+								<circle cx="70" cy="70" r="8" fill="#333" />
+							</g>
+							<g
+								id="face-5"
+								class="dice-face"
+								style="display: none">
+								<circle cx="30" cy="30" r="8" fill="#333" />
+								<circle cx="30" cy="70" r="8" fill="#333" />
+								<circle cx="50" cy="50" r="8" fill="#333" />
+								<circle cx="70" cy="30" r="8" fill="#333" />
+								<circle cx="70" cy="70" r="8" fill="#333" />
+							</g>
+							<g
+								id="face-6"
+								class="dice-face"
+								style="display: none">
+								<circle cx="30" cy="25" r="8" fill="#333" />
+								<circle cx="30" cy="50" r="8" fill="#333" />
+								<circle cx="30" cy="75" r="8" fill="#333" />
+								<circle cx="70" cy="25" r="8" fill="#333" />
+								<circle cx="70" cy="50" r="8" fill="#333" />
+								<circle cx="70" cy="75" r="8" fill="#333" />
+							</g>
+						</svg>
+					</div>
 				</div>
 				<button id="roll-button" disabled>Tung Xúc Xắc</button>
 				<div id="message-area">Chọn độ khó và nhấn Bắt đầu.</div>
@@ -59,7 +124,6 @@
 				</div>
 			</div>
 		</div>
-		<div class="credits">Cờ Cá Ngựa adapted from Nguyen Khiet</div>
 
 		<script src="Script.js"></script>
 	</body>
