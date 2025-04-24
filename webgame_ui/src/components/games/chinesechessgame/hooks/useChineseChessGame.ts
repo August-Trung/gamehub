@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useChineseChessAI } from "./useChineseChessAI";
 
 export type PieceType =
 	| "general" // tướng/vua
@@ -10,6 +11,8 @@ export type PieceType =
 	| "soldier"; // tốt/binh
 
 export type Player = "red" | "black";
+export type GameMode = "pvp" | "pve";
+export type AILevel = "easy" | "medium" | "hard";
 
 export interface ChessPiece {
 	id: string;
@@ -32,6 +35,9 @@ export interface GameState {
 		capturedPiece?: ChessPiece;
 		wasCheck?: boolean;
 	}[];
+	gameMode: GameMode;
+	aiLevel: AILevel;
+	isAIThinking: boolean;
 }
 
 // Kích thước bàn cờ: 10x9
@@ -77,7 +83,10 @@ const initialPieces: ChessPiece[] = [
 	{ id: "b-soldier5", type: "soldier", player: "black", position: [3, 8] },
 ];
 
-export const useChineseChessGame = () => {
+export const useChineseChessGame = (
+	initialGameMode: GameMode = "pvp",
+	initialAILevel: AILevel = "medium"
+) => {
 	const [gameState, setGameState] = useState<GameState>({
 		pieces: [...initialPieces],
 		currentPlayer: "red",
@@ -86,7 +95,15 @@ export const useChineseChessGame = () => {
 		winner: null,
 		inCheck: false,
 		moveHistory: [],
+		gameMode: initialGameMode,
+		aiLevel: initialAILevel,
+		isAIThinking: false,
 	});
+
+	// Sử dụng AI
+	const { getBestMove, lastAIMove, resetLastAIMove } = useChineseChessAI(
+		gameState.aiLevel
+	);
 
 	// Kiểm tra xem vị trí [row, col] có nằm trong bàn cờ không
 	const isInBoard = useCallback((row: number, col: number): boolean => {
@@ -517,30 +534,6 @@ export const useChineseChessGame = () => {
 		[getValidMoves]
 	);
 
-	// Kiểm tra liệu một phe có bị chiếu bí không (không có nước đi hợp lệ nào)
-	const isCheckmate = useCallback(
-		(player: Player): boolean => {
-			// Nếu không bị chiếu, thì không thể chiếu bí
-			if (!isInCheck(player)) return false;
-
-			// Lấy tất cả quân của phe đang bị kiểm tra
-			const playerPieces = gameState.pieces.filter(
-				(p) => p.player === player
-			);
-
-			// Kiểm tra xem có nước đi nào giúp thoát khỏi tình trạng chiếu không
-			for (const piece of playerPieces) {
-				const validMoves = getValidMoves(piece);
-				if (validMoves.length > 0) {
-					return false; // Có thể di chuyển, không bị chiếu bí
-				}
-			}
-
-			return true; // Không có nước đi nào hợp lệ, bị chiếu bí
-		},
-		[gameState.pieces, isInCheck, getValidMoves]
-	);
-
 	// Chọn quân cờ
 	const selectPiece = useCallback(
 		(piece: ChessPiece | null) => {
@@ -557,10 +550,101 @@ export const useChineseChessGame = () => {
 		[gameState.currentPlayer, gameState.gameOver]
 	);
 
+	const movePieceDirectly = useCallback(
+		(piece: ChessPiece, toRow: number, toCol: number) => {
+			const { pieces, currentPlayer, gameMode } = gameState;
+
+			if (gameState.gameOver) return;
+
+			const validMoves = getValidMoves(piece);
+			const isValidMove = validMoves.some(
+				([row, col]) => row === toRow && col === toCol
+			);
+			if (!isValidMove) return;
+
+			const targetPiece = getPieceAt(toRow, toCol);
+			const updatedPieces = pieces
+				.map((p) =>
+					p.id === piece.id
+						? { ...p, position: [toRow, toCol] as [number, number] }
+						: p
+				)
+				.filter((p) => !(targetPiece && p.id === targetPiece.id));
+
+			const nextPlayer = currentPlayer === "red" ? "black" : "red";
+			const isNextPlayerInCheck = isInCheck(nextPlayer, updatedPieces);
+
+			let gameOver = false;
+			let winner: Player | null = null;
+
+			if (targetPiece?.type === "general") {
+				gameOver = true;
+				winner = currentPlayer;
+			} else if (isNextPlayerInCheck) {
+				const nextPlayerPieces = updatedPieces.filter(
+					(p) => p.player === nextPlayer
+				);
+				let canEscapeCheck = false;
+
+				for (const piece of nextPlayerPieces) {
+					const pieceMoves = getValidMoves(piece, updatedPieces);
+					for (const [newRow, newCol] of pieceMoves) {
+						const simulated = updatedPieces.map((p) => ({ ...p }));
+						const moving = simulated.find((p) => p.id === piece.id);
+						if (!moving) continue;
+
+						const captureIdx = simulated.findIndex(
+							(p) =>
+								p.position[0] === newRow &&
+								p.position[1] === newCol &&
+								p.player !== piece.player
+						);
+						if (captureIdx >= 0) simulated.splice(captureIdx, 1);
+						moving.position = [newRow, newCol];
+
+						if (!isInCheck(nextPlayer, simulated)) {
+							canEscapeCheck = true;
+							break;
+						}
+					}
+					if (canEscapeCheck) break;
+				}
+
+				if (!canEscapeCheck) {
+					gameOver = true;
+					winner = currentPlayer;
+				}
+			}
+
+			const moveHistoryEntry = {
+				piece,
+				from: [...piece.position] as [number, number],
+				to: [toRow, toCol] as [number, number],
+				capturedPiece: targetPiece || undefined,
+				wasCheck: isNextPlayerInCheck,
+			};
+
+			setGameState((prev) => ({
+				...prev,
+				pieces: updatedPieces,
+				currentPlayer: nextPlayer,
+				selectedPiece: null,
+				gameOver,
+				winner,
+				inCheck: isNextPlayerInCheck,
+				moveHistory: [...prev.moveHistory, moveHistoryEntry],
+				isAIThinking:
+					gameMode === "pve" && nextPlayer === "black" && !gameOver,
+			}));
+		},
+		[gameState, getValidMoves, getPieceAt, isInCheck]
+	);
+
 	// Di chuyển quân cờ
 	const movePiece = useCallback(
 		(toRow: number, toCol: number) => {
-			const { selectedPiece, pieces, currentPlayer } = gameState;
+			const { selectedPiece, pieces, currentPlayer, gameMode } =
+				gameState;
 
 			if (!selectedPiece || gameState.gameOver) return;
 
@@ -600,7 +684,7 @@ export const useChineseChessGame = () => {
 			// Kiểm tra xem người chơi tiếp theo có bị chiếu không
 			const isNextPlayerInCheck = isInCheck(nextPlayer, updatedPieces);
 
-			// FIX: Kiểm tra ngay lập tức nếu nước đi dẫn đến chiếu bí
+			// Kiểm tra ngay lập tức nếu nước đi dẫn đến chiếu bí
 			let gameOver = false;
 			let winner: Player | null = null;
 
@@ -609,37 +693,52 @@ export const useChineseChessGame = () => {
 				gameOver = true;
 				winner = currentPlayer;
 			} else if (isNextPlayerInCheck) {
-				// Kiểm tra xem có phải chiếu bí không bằng cách cập nhật các quân cờ
-				// tạm thời và sau đó kiểm tra
-				const tempGameState = { ...gameState, pieces: updatedPieces };
-				const isNextPlayerCheckmated = true; // Force to check if checkmate
+				// Kiểm tra xem có phải chiếu bí không
+				const nextPlayerPieces = updatedPieces.filter(
+					(p) => p.player === nextPlayer
+				);
+				let canEscapeCheck = false;
 
-				if (isNextPlayerCheckmated) {
-					// Tạo một bản sao của mảng quân cờ để kiểm tra
-					const checkmateTest = updatedPieces.map((p) => ({ ...p }));
+				// Kiểm tra từng quân của người chơi tiếp theo
+				for (const piece of nextPlayerPieces) {
+					const pieceMoves = getValidMoves(piece, updatedPieces);
+					for (const [newRow, newCol] of pieceMoves) {
+						// Thử di chuyển quân để xem có thoát chiếu được không
+						const simulatedPieces = updatedPieces.map((p) => ({
+							...p,
+						}));
+						const movingPiece = simulatedPieces.find(
+							(p) => p.id === piece.id
+						);
+						if (!movingPiece) continue;
 
-					// Kiểm tra từng quân của người chơi tiếp theo
-					const nextPlayerPieces = checkmateTest.filter(
-						(p) => p.player === nextPlayer
-					);
-					let canEscapeCheck = false;
+						// Loại bỏ quân bị ăn (nếu có)
+						const capturedIndex = simulatedPieces.findIndex(
+							(p) =>
+								p.position[0] === newRow &&
+								p.position[1] === newCol &&
+								p.player !== piece.player
+						);
+						if (capturedIndex >= 0) {
+							simulatedPieces.splice(capturedIndex, 1);
+						}
 
-					// Kiểm tra từng quân xem có thể thoát chiếu không
-					for (const piece of nextPlayerPieces) {
-						// Lấy các nước đi hợp lệ cho quân này
-						const pieceMoves = getValidMoves(piece, checkmateTest);
+						// Thực hiện di chuyển
+						movingPiece.position = [newRow, newCol];
 
-						if (pieceMoves.length > 0) {
+						// Kiểm tra xem sau nước đi này, tướng của nextPlayer có còn bị chiếu không
+						if (!isInCheck(nextPlayer, simulatedPieces)) {
 							canEscapeCheck = true;
 							break;
 						}
 					}
+					if (canEscapeCheck) break;
+				}
 
-					// Nếu không thể thoát chiếu, đây là chiếu bí
-					if (!canEscapeCheck) {
-						gameOver = true;
-						winner = currentPlayer;
-					}
+				// Nếu không thể thoát chiếu, đây là chiếu bí
+				if (!canEscapeCheck) {
+					gameOver = true;
+					winner = currentPlayer;
 				}
 			}
 
@@ -661,14 +760,33 @@ export const useChineseChessGame = () => {
 				winner,
 				inCheck: isNextPlayerInCheck,
 				moveHistory: [...prev.moveHistory, moveHistoryEntry],
+				isAIThinking:
+					gameMode === "pve" && nextPlayer === "black" && !gameOver,
 			}));
 		},
 		[gameState, getValidMoves, getPieceAt, isInCheck]
 	);
 
+	// Hàm thay đổi chế độ chơi
+	const changeGameMode = useCallback((mode: GameMode) => {
+		setGameState((prev) => ({
+			...prev,
+			gameMode: mode,
+		}));
+	}, []);
+
+	// Hàm thay đổi độ khó AI
+	const changeAILevel = useCallback((level: AILevel) => {
+		setGameState((prev) => ({
+			...prev,
+			aiLevel: level,
+		}));
+	}, []);
+
 	// Đặt lại game
 	const resetGame = useCallback(() => {
-		setGameState({
+		resetLastAIMove();
+		setGameState((prev) => ({
 			pieces: [...initialPieces],
 			currentPlayer: "red",
 			selectedPiece: null,
@@ -676,51 +794,49 @@ export const useChineseChessGame = () => {
 			winner: null,
 			inCheck: false,
 			moveHistory: [],
-		});
+			gameMode: prev.gameMode,
+			aiLevel: prev.aiLevel,
+			isAIThinking: false,
+		}));
 	}, []);
 
-	// Đi lại nước cờ trước đó
-	const undoMove = useCallback(() => {
-		if (gameState.moveHistory.length === 0) return;
+	// Effect để AI chơi khi đến lượt
+	useEffect(() => {
+		if (
+			gameState.gameMode === "pve" &&
+			gameState.currentPlayer === "black" &&
+			!gameState.gameOver &&
+			gameState.isAIThinking
+		) {
+			const aiThinkingTime =
+				gameState.aiLevel === "easy"
+					? 800
+					: gameState.aiLevel === "medium"
+						? 500
+						: 300;
 
-		const lastMove =
-			gameState.moveHistory[gameState.moveHistory.length - 1];
-		const { piece, from, capturedPiece } = lastMove;
+			const aiMoveTimeout = setTimeout(() => {
+				const aiMove = getBestMove(
+					gameState.pieces,
+					"black",
+					getValidMoves
+				);
 
-		// Khôi phục vị trí quân cờ
-		const updatedPieces = gameState.pieces.map((p) => {
-			if (p.id === piece.id) {
-				return {
-					...p,
-					position: [from[0], from[1]] as [number, number],
-				};
-			}
-			return p;
-		});
+				// console.log("AI chọn nước:", aiMove);
 
-		// Nếu có quân bị ăn, thêm lại vào bàn cờ
-		if (capturedPiece) {
-			updatedPieces.push(capturedPiece);
+				if (aiMove) {
+					movePieceDirectly(aiMove.piece, aiMove.to[0], aiMove.to[1]);
+				}
+
+				setGameState((prev) => ({
+					...prev,
+					isAIThinking: false,
+				}));
+			}, aiThinkingTime);
+
+			return () => clearTimeout(aiMoveTimeout);
 		}
-
-		// Kiểm tra xem người chơi trước đó có bị chiếu không
-		const previousPlayer =
-			gameState.currentPlayer === "red" ? "black" : "red";
-		const isPreviousPlayerInCheck =
-			gameState.moveHistory.length >= 2 &&
-			gameState.moveHistory[gameState.moveHistory.length - 2].wasCheck;
-
-		setGameState((prev) => ({
-			...prev,
-			pieces: updatedPieces,
-			currentPlayer: previousPlayer,
-			selectedPiece: null,
-			gameOver: false,
-			winner: null,
-			inCheck: !!isPreviousPlayerInCheck,
-			moveHistory: prev.moveHistory.slice(0, -1),
-		}));
-	}, [gameState.pieces, gameState.moveHistory, gameState.currentPlayer]);
+	}, [gameState, getBestMove, getValidMoves, movePieceDirectly]);
 
 	return {
 		pieces: gameState.pieces,
@@ -730,10 +846,15 @@ export const useChineseChessGame = () => {
 		winner: gameState.winner,
 		inCheck: gameState.inCheck,
 		moveHistory: gameState.moveHistory,
+		gameMode: gameState.gameMode,
+		aiLevel: gameState.aiLevel,
+		isAIThinking: gameState.isAIThinking,
+		lastAIMove,
 		selectPiece,
 		movePiece,
 		getValidMoves,
 		resetGame,
-		undoMove,
+		changeGameMode,
+		changeAILevel,
 	};
 };
