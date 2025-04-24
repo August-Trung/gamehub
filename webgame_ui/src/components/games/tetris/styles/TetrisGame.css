@@ -6,6 +6,8 @@
 	gap: 20px;
 	font-family: Arial, sans-serif;
 	color: white;
+	max-width: 100%;
+	padding: 0 10px;
 }
 
 /* Game Board */
@@ -85,6 +87,18 @@
 	background-color: #111;
 	padding: 10px;
 	margin-top: 10px;
+	width: 100px;
+	height: 100px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.next-piece-grid {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
 }
 
 .next-piece-row {
@@ -190,4 +204,118 @@
 .tetris-control-button:not(.disabled):active,
 .tetris-direction-button:not(.disabled):active {
 	background-color: #666;
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+	.tetris-container {
+		gap: 10px;
+		padding: 0 5px;
+	}
+
+	/* Game Board scaling for mobile */
+	.tetris-game-board {
+		padding: 5px;
+	}
+
+	.tetris-cell {
+		width: 15px;
+		height: 15px;
+		border: 1px solid #333;
+	}
+
+	/* Side panel adjustments */
+	.tetris-side-panel {
+		width: 150px;
+		gap: 10px;
+	}
+
+	/* Score board and controls */
+	.tetris-score-board,
+	.tetris-controls-panel {
+		padding: 10px;
+	}
+
+	.tetris-button {
+		padding: 6px 12px;
+		font-size: 12px;
+	}
+
+	.tetris-control-button,
+	.tetris-direction-button {
+		padding: 8px;
+		font-size: 12px;
+	}
+
+	/* Next piece preview */
+	.tetris-next-piece-preview {
+		width: 80px;
+		height: 80px;
+		padding: 5px;
+	}
+
+	.next-piece-cell {
+		width: 15px;
+		height: 15px;
+	}
+
+	/* Keyboard help */
+	.tetris-keyboard-help {
+		font-size: 10px;
+	}
+
+	.tetris-keyboard-instruction {
+		margin: 2px 0;
+	}
+}
+
+/* Extra small screens */
+@media (max-width: 374px) {
+	.tetris-container {
+		gap: 5px;
+	}
+
+	.tetris-cell {
+		width: 12px;
+		height: 12px;
+	}
+
+	.tetris-side-panel {
+		width: 120px;
+	}
+
+	.tetris-button {
+		padding: 5px 10px;
+		font-size: 11px;
+	}
+
+	.next-piece-cell {
+		width: 12px;
+		height: 12px;
+	}
+
+	/* Make score text smaller */
+	.tetris-score-line {
+		font-size: 11px;
+	}
+
+	/* Adjust directions buttons for very small screens */
+	.tetris-direction-button-container {
+		gap: 2px;
+	}
+
+	.tetris-direction-button,
+	.tetris-control-button {
+		padding: 5px;
+		font-size: 10px;
+	}
+}
+
+/* Make game board responsive to container size */
+.tetris-board-container {
+	display: flex;
+	flex-direction: column;
+	border: 2px solid #333;
+	max-width: 100%;
+	max-height: 100vh;
 }

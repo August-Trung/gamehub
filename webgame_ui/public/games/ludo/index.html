@@ -8,7 +8,9 @@
 	</head>
 	<body>
 		<h1 class="ludo-title">Cờ Cá Ngựa (Chơi với Máy)</h1>
-		<div class="credits">Based on work by Nguyen Khiet. Modified by AT.</div>
+		<div class="credits">
+			Based on work by Nguyen Khiet. Modified by AT.
+		</div>
 
 		<div id="game-setup">
 			<label for="difficulty">Chọn độ khó:</label>
@@ -126,5 +128,27 @@
 		</div>
 
 		<script src="Script.js"></script>
+		<script>
+			function sendHeightToParent() {
+				const height = document.documentElement.scrollHeight;
+				window.parent.postMessage({ type: "ludo-resize", height }, "*");
+			}
+
+			window.addEventListener("load", () => {
+				sendHeightToParent();
+
+				// Gửi lại sau 1 giây nếu có render thêm nội dung
+				setTimeout(sendHeightToParent, 1000);
+			});
+
+			// Gửi lại khi cửa sổ resize (cho mobile xoay ngang/dọc)
+			window.addEventListener("resize", sendHeightToParent);
+
+			// Tùy chọn: Theo dõi thay đổi body bằng ResizeObserver
+			const observer = new ResizeObserver(() => {
+				sendHeightToParent();
+			});
+			observer.observe(document.body);
+		</script>
 	</body>
 </html>

@@ -28,6 +28,8 @@ export default function GameHub(): JSX.Element {
 		{ id: "ludo", name: "Ludo", component: <LudoGame /> },
 	];
 
+	games.sort((a, b) => a.name.localeCompare(b.name));
+
 	const handleBackToMenu = () => {
 		setCurrentGame(null);
 	};
@@ -46,9 +48,10 @@ export default function GameHub(): JSX.Element {
 					</div>
 				) : (
 					<div className="w-full">
-						<h2 className="text-xl font-semibold mb-6 text-center">
-							Choose a Game
+						<h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+							🎮 Choose a Game to Play
 						</h2>
+
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 							{games.map((game, index) => (
 								<div

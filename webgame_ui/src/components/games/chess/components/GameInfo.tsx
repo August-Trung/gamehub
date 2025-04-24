@@ -62,14 +62,12 @@ const GameInfo: React.FC<GameInfoProps> = ({
 				i + 1 < moveHistory.length ? moveHistory[i + 1] : null;
 
 			formattedMoves.push(
-				<div key={i} className="move-pair">
+				<div className="move-pair">
 					<span className="move-number">{moveNumber}.</span>
 					<span className="white-move">{formatMove(whiteMove)}</span>
-					{blackMove && (
-						<span className="black-move">
-							{formatMove(blackMove)}
-						</span>
-					)}
+					<span className="black-move">
+						{blackMove ? formatMove(blackMove) : ""}
+					</span>
 				</div>
 			);
 		}

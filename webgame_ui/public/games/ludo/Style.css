@@ -298,13 +298,13 @@ body {
 	opacity: 0.6;
 }
 
-#dice-area,
+/* #dice-area,
 #roll-button,
 #message-area,
 #turn-indicator {
 	flex: none;
 	margin: 0;
-}
+} */
 
 #message-area {
 	margin-top: 10px;
@@ -395,12 +395,36 @@ body {
 		overflow-x: hidden; /* tránh giật ngang */
 	}
 
-	/* Đảm bảo các phần còn lại co giãn đều */
-	#dice-area,
-	#roll-button,
-	#turn-indicator {
-		flex: none;
-		margin: 0;
+	#roll-button {
+		width: 100%;
+		padding: 14px 20px;
+		font-size: 1.05em;
+		font-weight: 600;
+		color: #fff;
+		background: linear-gradient(135deg, #4caf50, #66bb6a);
+		border: none;
+		border-radius: 10px;
+		cursor: pointer;
+		transition:
+			background 0.3s ease,
+			transform 0.15s ease;
+		box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	#roll-button:hover:not(:disabled) {
+		background: linear-gradient(135deg, #43a047, #4caf50);
+		transform: translateY(-2px);
+	}
+
+	#roll-button:active:not(:disabled) {
+		transform: translateY(0);
+	}
+
+	#roll-button:disabled {
+		background: #ccc;
+		color: #666;
+		box-shadow: none;
+		cursor: not-allowed;
 	}
 }
 
