@@ -38,9 +38,9 @@ const ChineseChessPiece: React.FC<ChineseChessPieceProps> = ({
 }) => {
 	const { type, player } = piece;
 
-	// Define fixed sizes for different devices
-	const pieceSize = isMobile ? "1.75rem" : "3.5rem";
-	const fontSize = isMobile ? "text-sm" : "text-2xl";
+	// Define fixed sizes for different devices - increased mobile size
+	const pieceSize = isMobile ? "2.25rem" : "3.5rem";
+	const fontSize = isMobile ? "text-base" : "text-2xl";
 
 	return (
 		<div
