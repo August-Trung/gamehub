@@ -8,7 +8,7 @@ interface BoardProps {
 	isPaused: boolean;
 }
 
-const Board: React.FC<BoardProps> = ({ board, player, gameOver, isPaused }) => {
+const Board: React.FC<BoardProps> = ({ board, player, gameOver }) => {
 	const renderBoard = () => {
 		// Create a copy of the board
 		const boardCopy = board.map((row) => [...row]);
