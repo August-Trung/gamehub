@@ -517,30 +517,6 @@ export const useChineseChessGame = () => {
 		[getValidMoves]
 	);
 
-	// Kiểm tra liệu một phe có bị chiếu bí không (không có nước đi hợp lệ nào)
-	const isCheckmate = useCallback(
-		(player: Player): boolean => {
-			// Nếu không bị chiếu, thì không thể chiếu bí
-			if (!isInCheck(player)) return false;
-
-			// Lấy tất cả quân của phe đang bị kiểm tra
-			const playerPieces = gameState.pieces.filter(
-				(p) => p.player === player
-			);
-
-			// Kiểm tra xem có nước đi nào giúp thoát khỏi tình trạng chiếu không
-			for (const piece of playerPieces) {
-				const validMoves = getValidMoves(piece);
-				if (validMoves.length > 0) {
-					return false; // Có thể di chuyển, không bị chiếu bí
-				}
-			}
-
-			return true; // Không có nước đi nào hợp lệ, bị chiếu bí
-		},
-		[gameState.pieces, isInCheck, getValidMoves]
-	);
-
 	// Chọn quân cờ
 	const selectPiece = useCallback(
 		(piece: ChessPiece | null) => {
@@ -611,7 +587,6 @@ export const useChineseChessGame = () => {
 			} else if (isNextPlayerInCheck) {
 				// Kiểm tra xem có phải chiếu bí không bằng cách cập nhật các quân cờ
 				// tạm thời và sau đó kiểm tra
-				const tempGameState = { ...gameState, pieces: updatedPieces };
 				const isNextPlayerCheckmated = true; // Force to check if checkmate
 
 				if (isNextPlayerCheckmated) {
