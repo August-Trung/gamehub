@@ -11,6 +11,7 @@ import TetrisGame from "@/components/games/tetris/TetrisGame";
 import ChessGame from "@/components/games/chess/ChessGame";
 import HangmanGame from "@/components/games/hangman/HangmanGame";
 import LudoGame from "@/components/games/ludo/LudoGame";
+import ChineseChessGame from "@/components/games/chinesechessgame/ChineseChessGame";
 import { GameItem } from "@/types/game";
 
 export default function GameHub(): JSX.Element {
@@ -26,6 +27,11 @@ export default function GameHub(): JSX.Element {
 		{ id: "chessGame", name: "ChessGame", component: <ChessGame /> },
 		{ id: "hangmanGame", name: "HangmanGame", component: <HangmanGame /> },
 		{ id: "ludo", name: "Ludo", component: <LudoGame /> },
+		{
+			id: "chinesechessgame",
+			name: "ChineseChessGame",
+			component: <ChineseChessGame />,
+		},
 	];
 
 	games.sort((a, b) => a.name.localeCompare(b.name));
