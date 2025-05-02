@@ -1,6 +1,6 @@
 # GameHub
 
-![GameHub Logo](webgame_ui/public/homescreen.jpg)
+![GameHub Homescreen](image.png)
 
 ## 🎮 Overview
 
