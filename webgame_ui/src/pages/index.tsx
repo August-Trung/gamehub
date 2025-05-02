@@ -12,6 +12,7 @@ import ChessGame from "@/components/games/chess/ChessGame";
 import HangmanGame from "@/components/games/hangman/HangmanGame";
 import LudoGame from "@/components/games/ludo/LudoGame";
 import ChineseChessGame from "@/components/games/chinesechessgame/ChineseChessGame";
+import MandarinSquareCapturingGame from "@/components/games/mandarinsquarecapturing/MandarinSquareCapturingGame";
 import { GameItem } from "@/types/game";
 
 export default function GameHub(): JSX.Element {
@@ -31,6 +32,11 @@ export default function GameHub(): JSX.Element {
 			id: "chinesechessgame",
 			name: "ChineseChessGame",
 			component: <ChineseChessGame />,
+		},
+		{
+			id: "mandarinsquarecapturing",
+			name: "MandarinSquareCapturing",
+			component: <MandarinSquareCapturingGame />,
 		},
 	];
 
