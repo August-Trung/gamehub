@@ -114,7 +114,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 👏 Acknowledgements
 
 -   All the classic game creators for their timeless designs
--   [React](https://reactjs.org/) and [Next.js](https://nextjs.org/) for the awesome frameworks
+-   [React](https://reactjs.org/)
+-   [Vite](https://vite.dev/) for fast and efficient development
 -   [Vercel](https://vercel.com/) for hosting
 
 ---
