@@ -15,6 +15,8 @@ const GameTile: React.FC<GameTileProps> = ({
 	isMerging,
 	isNew,
 }) => {
+	const TILE_GAP = 8; // px, matches gap in GameBoard background
+
 	const getTileColor = (value: number): string => {
 		const colorMap: Record<number, string> = {
 			0: "bg-gray-200",
@@ -41,16 +43,21 @@ const GameTile: React.FC<GameTileProps> = ({
 		return "text-2xl";
 	};
 
+	const tileStyle: React.CSSProperties = {
+		width: "calc((100% - 24px) / 4)", // 3 gaps * 8px = 24px
+		height: "calc((100% - 24px) / 4)",
+		transform: `translate(calc(${colIndex} * (100% + ${TILE_GAP}px)), calc(${rowIndex} * (100% + ${TILE_GAP}px)))`,
+		transition:
+			"transform 0.18s ease, box-shadow 0.2s ease, background-color 0.2s ease",
+	};
+
 	return (
 		<div
-			className={`flex items-center justify-center rounded font-bold
+			className={`game-2048-tile absolute left-0 top-0 flex items-center justify-center rounded font-bold
         ${getTileColor(value)} ${getFontSize(value)}
-        ${isMerging ? "animate-bounce" : ""}
-        ${isNew ? "animate-pulse" : ""}`}
-			style={{
-				gridRow: rowIndex + 1,
-				gridColumn: colIndex + 1,
-			}}>
+        ${isMerging ? "tile-merge" : ""}
+        ${isNew ? "tile-pop" : ""}`}
+			style={tileStyle}>
 			{value}
 		</div>
 	);

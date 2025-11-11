@@ -34,7 +34,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
 	return (
 		<div
-			className="bg-gray-300 p-4 rounded-lg relative"
+			className="game-2048-board p-4"
 			onTouchStart={handleTouchStartPrevent}
 			onTouchMove={handleTouchMovePrevent}
 			onTouchEnd={handleTouchEnd}>
@@ -51,7 +51,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
 			{/* Tiles */}
 			<div className="absolute inset-0 p-4">
-				<div className="relative grid grid-cols-4 grid-rows-4 gap-2 h-full w-full">
+				<div className="relative h-full w-full">
 					{board.map((row, rowIndex) =>
 						row.map(
 							(value, colIndex) =>
