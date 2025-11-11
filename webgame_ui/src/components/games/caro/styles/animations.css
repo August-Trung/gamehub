@@ -1,0 +1,190 @@
+.caro-wrapper {
+  background: radial-gradient(circle at top, rgba(59, 130, 246, 0.12), transparent 55%),
+    radial-gradient(circle at bottom, rgba(190, 24, 93, 0.12), transparent 50%),
+    rgba(15, 23, 42, 0.2);
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 45px rgba(15, 23, 42, 0.35);
+  padding: 1.5rem;
+}
+
+.caro-title {
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: rgba(191, 219, 254, 0.85);
+}
+
+.caro-status-card {
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 1.25rem;
+  padding: 1rem 1.25rem;
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 12px rgba(14, 165, 233, 0.15);
+}
+
+.caro-status-card h2 span {
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.55);
+}
+
+.caro-player-card {
+  flex: 1;
+  border-radius: 1.15rem;
+  padding: 1rem;
+  border: 1px solid transparent;
+  background: rgba(15, 23, 42, 0.75);
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.caro-player-card.active {
+  border-color: rgba(56, 189, 248, 0.7);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(14, 165, 233, 0.25);
+}
+
+.caro-player-card .label {
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(191, 219, 254, 0.9);
+}
+
+.caro-player-card .timer {
+  font-family: "Space Mono", monospace;
+  font-size: 1.6rem;
+  color: #f8fafc;
+}
+
+.caro-button {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  color: #0f172a;
+  background: linear-gradient(120deg, #facc15, #f97316);
+  box-shadow: 0 10px 25px rgba(249, 115, 22, 0.35);
+  overflow: hidden;
+}
+
+.caro-button.secondary {
+  background: linear-gradient(120deg, #22d3ee, #818cf8);
+  color: #0f172a;
+  box-shadow: 0 10px 25px rgba(56, 189, 248, 0.3);
+}
+
+.caro-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.35), transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+}
+
+.caro-button:hover::after {
+  transform: translateX(120%);
+}
+
+.caro-board {
+  background: rgba(15, 23, 42, 0.85);
+  border-radius: 1rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 30px rgba(15, 23, 42, 0.6), 0 25px 45px rgba(15, 23, 42, 0.4);
+  animation: boardGlow 9s ease-in-out infinite;
+}
+
+.caro-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(248, 250, 252, 0.06);
+  border: 1px solid rgba(226, 232, 240, 0.2);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.caro-cell-empty:hover::before {
+  opacity: 1;
+}
+
+.caro-cell-empty::before {
+  content: "";
+  position: absolute;
+  inset: 10%;
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.04);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.caro-marker {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.caro-marker.x {
+  color: #60a5fa;
+  text-shadow: 0 0 12px rgba(59, 130, 246, 0.65);
+}
+
+.caro-marker.o {
+  color: #f87171;
+  text-shadow: 0 0 12px rgba(248, 113, 113, 0.65);
+}
+
+.caro-marker.winning {
+  animation: winningPulse 0.8s ease-in-out infinite;
+}
+
+.caro-board-size button {
+  border-radius: 0.9rem;
+  padding: 0.65rem;
+  font-weight: 600;
+  background: rgba(248, 250, 252, 0.08);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.caro-board-size button.active {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.6);
+  color: #e0f2fe;
+  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.25);
+  transform: translateY(-2px);
+}
+
+@keyframes winningPulse {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 10px rgba(248, 250, 252, 0.4);
+  }
+  50% {
+    transform: scale(1.1);
+    text-shadow: 0 0 25px rgba(251, 191, 36, 0.85);
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 10px rgba(248, 250, 252, 0.4);
+  }
+}
+
+@keyframes boardGlow {
+  0% {
+    box-shadow: inset 0 0 30px rgba(15, 23, 42, 0.6), 0 25px 45px rgba(15, 23, 42, 0.4);
+  }
+  50% {
+    box-shadow: inset 0 0 40px rgba(6, 182, 212, 0.25), 0 30px 60px rgba(6, 182, 212, 0.35);
+  }
+  100% {
+    box-shadow: inset 0 0 30px rgba(15, 23, 42, 0.6), 0 25px 45px rgba(15, 23, 42, 0.4);
+  }
+}

@@ -51,7 +51,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
 			{/* Tiles */}
 			<div className="absolute inset-0 p-4">
-				<div className="relative h-full w-full">
+				<div className="relative grid grid-cols-4 grid-rows-4 gap-2 h-full w-full">
 					{board.map((row, rowIndex) =>
 						row.map(
 							(value, colIndex) =>

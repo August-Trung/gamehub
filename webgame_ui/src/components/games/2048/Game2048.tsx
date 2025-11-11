@@ -46,47 +46,43 @@ function Game2048(): JSX.Element {
 			<div className="flex justify-between items-center mb-4">
 				<div className="flex gap-2">
 					<div
-						className={`bg-slate-800/80 text-white px-4 py-2 rounded-2xl shadow-inner shadow-slate-900/60 transition ${scorePulse ? "score-bump" : ""}`}>
-						<div className="text-xs uppercase tracking-[0.3em] text-cyan-200">
-							Score
-						</div>
-						<div className="font-bold text-2xl">{score}</div>
+						className={`score-card ${
+							scorePulse ? "score-bump" : ""
+						}`}>
+						<div className="label">Score</div>
+						<div className="value">{score}</div>
 					</div>
 					<div
-						className={`bg-slate-800/80 text-white px-4 py-2 rounded-2xl shadow-inner shadow-slate-900/60 transition ${bestPulse ? "score-bump" : ""}`}>
-						<div className="text-xs uppercase tracking-[0.3em] text-cyan-200">
-							Best
-						</div>
-						<div className="font-bold text-2xl">{bestScore}</div>
+						className={`score-card ${
+							bestPulse ? "score-bump" : ""
+						}`}>
+						<div className="label">Best</div>
+						<div className="value">{bestScore}</div>
 					</div>
 				</div>
 
 				<button
-					className="button-glow px-4 py-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-white rounded-full font-semibold uppercase tracking-[0.3em]"
+					className="button-shimmer px-4 py-2 bg-gradient-to-r from-cyan-400 to-blue-600 text-white rounded-full font-semibold uppercase tracking-[0.35em]"
 					onClick={resetGame}>
 					New Game
 				</button>
 			</div>
 
 			<div className="flex justify-between items-center mb-4">
-				<div className="bg-slate-800/70 px-4 py-2 rounded-2xl text-white">
-					<div className="text-xs uppercase tracking-[0.3em] text-cyan-200">
-						Time
-					</div>
-					<div className="font-bold text-xl">{formatTime(time)}</div>
+				<div className="score-card">
+					<div className="label">Time</div>
+					<div className="value text-xl">{formatTime(time)}</div>
 				</div>
 
-				<div className="bg-slate-800/70 px-4 py-2 rounded-2xl text-white">
-					<div className="text-xs uppercase tracking-[0.3em] text-cyan-200">
-						Best Time
-					</div>
-					<div className="font-bold text-xl">
+				<div className="score-card">
+					<div className="label">Best Time</div>
+					<div className="value text-xl">
 						{bestTime > 0 ? formatTime(bestTime) : "--:--"}
 					</div>
 				</div>
 
 				<button
-					className={`button-glow px-4 py-2 rounded-full text-white font-semibold uppercase tracking-[0.3em] ${
+					className={`button-shimmer px-4 py-2 rounded-full text-white font-semibold uppercase tracking-[0.3em] ${
 						isPaused
 							? "bg-gradient-to-r from-emerald-400 to-green-500"
 							: "bg-gradient-to-r from-amber-400 to-orange-500"

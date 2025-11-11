@@ -3,6 +3,7 @@ import Board from "./components/Board";
 import Controls from "./components/Controls";
 import { useCaroGame } from "./hooks/useCaroGame";
 import TimerDisplay from "./components/TimerDisplay";
+import "./styles/animations.css";
 
 export default function Game() {
 	const {
@@ -39,45 +40,28 @@ export default function Game() {
 	const isMobile = windowWidth < 768;
 
 	return (
-		<div className="flex flex-col items-center w-full max-w-full mx-auto my-4 px-2">
-			<h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-4 text-center">
-				Caro (Five in a Row)
+		<div className="caro-wrapper flex flex-col items-center w-full max-w-4xl mx-auto my-4 px-2 text-white">
+			<p className="caro-title mb-2 text-center">Arcade match</p>
+			<h1 className="text-3xl font-bold mb-4 text-center tracking-wide">
+				Caro <span className="text-cyan-300">Neon</span> Arena
 			</h1>
 
-			<div className="mb-2 sm:mb-4 text-center">
+			<div className="caro-status-card mb-4 text-center w-full">
 				{winner ? (
-					<h2 className="text-xl sm:text-2xl font-bold">
+					<h2 className="text-2xl font-bold">
 						Winner:{" "}
-						<span
-							className={
-								winner === "X"
-									? "text-blue-600"
-									: "text-red-600"
-							}>
+						<span className={winner === "X" ? "text-blue-400" : "text-pink-400"}>
 							{winner}
 						</span>
 					</h2>
 				) : hasTimeOut ? (
-					<h2 className="text-xl sm:text-2xl font-bold">
-						<span
-							className={
-								timeOutPlayer === "X"
-									? "text-blue-600"
-									: "text-red-600"
-							}>
-							{timeOutPlayer}
-						</span>{" "}
-						ran out of time!
+					<h2 className="text-2xl font-bold text-rose-300">
+						{timeOutPlayer} ran out of time!
 					</h2>
 				) : (
-					<h2 className="text-lg sm:text-xl">
+					<h2 className="text-xl tracking-[0.2em] text-gray-200">
 						Current Player:{" "}
-						<span
-							className={
-								currentPlayer === "X"
-									? "text-blue-600"
-									: "text-red-600"
-							}>
+						<span className={currentPlayer === "X" ? "text-blue-300" : "text-pink-300"}>
 							{currentPlayer}
 						</span>
 					</h2>
@@ -95,10 +79,8 @@ export default function Game() {
 			/>
 
 			{/* Main content area with responsive layout */}
-			<div
-				className={`w-full flex ${isMobile ? "flex-col" : "flex-col"} items-center gap-4`}>
-				{/* Game board container with responsive scaling */}
-				<div className="w-full flex justify-center mb-4">
+			<div className="w-full flex flex-col lg:flex-row items-start gap-6">
+				<div className="w-full flex justify-center">
 					<Board
 						board={board}
 						winningLine={winningLine}
@@ -106,9 +88,7 @@ export default function Game() {
 						boardSize={boardSize}
 					/>
 				</div>
-
-				{/* Controls container with responsive width */}
-				<div className={`${isMobile ? "w-full" : "w-64"}`}>
+				<div className={`${isMobile ? "w-full" : "w-64"} space-y-4`}>
 					<Controls
 						onRestart={handleRestart}
 						boardSize={boardSize}

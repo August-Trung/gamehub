@@ -1,35 +1,29 @@
-import { useState, useCallback, useRef } from "react";
-import { useMandarinAnimation } from "./useMandarinAnimation";
+import { useCallback, useMemo, useState } from "react";
+import type { AnimationState } from "./useMandarinAnimation";
 
 export interface GameState {
-	board: number[]; // 12 pockets: 10 regular pockets and 2 mandarin pockets (indices 5 and 11)
-	scores: [number, number]; // Scores for player 1 and 2
-	borrowedSeeds: [number, number]; // Seeds borrowed by each player
+	board: number[];
+	scores: [number, number];
+	borrowedSeeds: [number, number];
 }
 
+const TOTAL_POCKETS = 12;
+const PLAYER1_POCKETS = [0, 1, 2, 3, 4];
+const PLAYER2_POCKETS = [6, 7, 8, 9, 10];
+const MANDARIN_INDICES = [5, 11];
+const SEEDS_PER_REFILL = 5;
+const MANDARIN_VALUE = 10;
+
 const INITIAL_STATE: GameState = {
-	board: [
-		5,
-		5,
-		5,
-		5,
-		5, // Player 1's regular pockets (0-4)
-		10, // Mandarin pocket (5)
-		5,
-		5,
-		5,
-		5,
-		5, // Player 2's regular pockets (6-10)
-		10, // Mandarin pocket (11)
-	],
+	board: [5, 5, 5, 5, 5, 10, 5, 5, 5, 5, 5, 10],
 	scores: [0, 0],
 	borrowedSeeds: [0, 0],
 };
 
-const MANDARIN_INDICES = [5, 11];
-const MANDARIN_VALUE = 10;
-const SEEDS_PER_REFILL = 5;
-const ANIMATION_DELAY = 300; // ms between seed movements
+const getNextIndex = (index: number, direction: 1 | -1) => {
+	const next = (index + direction) % TOTAL_POCKETS;
+	return next < 0 ? next + TOTAL_POCKETS : next;
+};
 
 export const useMandarinSquareGame = () => {
 	const [gameState, setGameState] = useState<GameState>({ ...INITIAL_STATE });
@@ -37,388 +31,215 @@ export const useMandarinSquareGame = () => {
 	const [selectedPocket, setSelectedPocket] = useState<number | null>(null);
 	const [isGameOver, setIsGameOver] = useState(false);
 	const [winner, setWinner] = useState<1 | 2 | null>(null);
-	const [message, setMessage] = useState<string>("");
+	const [message, setMessage] = useState("");
+	const [sowDirection, setSowDirection] = useState<1 | -1>(1);
 
-	// Animation state
-	const {
-		animationState,
-		startAnimation,
-		updateAnimationIndex,
-		stopAnimation,
-	} = useMandarinAnimation();
-
-	// Use a ref to store timeouts so we can clear them if needed
-	const animationTimeoutsRef = useRef<number[]>([]);
-
-	// Get player's pocket range
-	const getPlayerPockets = useCallback((player: 1 | 2) => {
-		return player === 1 ? [0, 1, 2, 3, 4] : [6, 7, 8, 9, 10];
-	}, []);
-
-	// Check if all player's pockets are empty
-	const areAllPlayerPocketsEmpty = useCallback(
-		(state: GameState, player: 1 | 2) => {
-			const playerPockets = getPlayerPockets(player);
-			return playerPockets.every((idx) => state.board[idx] === 0);
-		},
-		[getPlayerPockets]
+	const animationState = useMemo<AnimationState>(
+		() => ({
+			isAnimating: false,
+			currentSowingIndex: null,
+			animationDirection:
+				sowDirection === 1 ? "counterclockwise" : "clockwise",
+			lastSownIndex: null,
+		}),
+		[sowDirection],
 	);
 
-	// Clear all animation timeouts
-	const clearAnimationTimeouts = useCallback(() => {
-		animationTimeoutsRef.current.forEach((timeoutId) =>
-			window.clearTimeout(timeoutId)
-		);
-		animationTimeoutsRef.current = [];
-	}, []);
+	const getPlayerPockets = useCallback(
+		(player: 1 | 2) => (player === 1 ? PLAYER1_POCKETS : PLAYER2_POCKETS),
+		[],
+	);
 
-	// Handle refilling pockets when all pockets are empty
+	const areAllPlayerPocketsEmpty = useCallback(
+		(state: GameState, player: 1 | 2) => {
+			const pockets = getPlayerPockets(player);
+			return pockets.every((idx) => state.board[idx] === 0);
+		},
+		[getPlayerPockets],
+	);
+
 	const handleEmptyPockets = useCallback(
 		(state: GameState, player: 1 | 2) => {
-			const newState = { ...state };
-			const playerPockets = getPlayerPockets(player);
+			const pockets = getPlayerPockets(player);
 			const playerIndex = player - 1;
+			const newState = { ...state, board: [...state.board], scores: [...state.scores], borrowedSeeds: [...state.borrowedSeeds] } as GameState;
 
-			// If player has enough seeds in their score
 			if (newState.scores[playerIndex] >= SEEDS_PER_REFILL) {
-				// Subtract from score and refill pockets
 				newState.scores[playerIndex] -= SEEDS_PER_REFILL;
-
-				// Refill each pocket with 1 seed
-				playerPockets.forEach((idx) => {
-					newState.board[idx] = 1;
-				});
-
-				setMessage(
-					`Player ${player} refilled their pockets with 5 seeds from their score.`
-				);
+			} else {
+				const needed = SEEDS_PER_REFILL - newState.scores[playerIndex];
+				newState.borrowedSeeds[playerIndex] += needed;
+				newState.scores[playerIndex] = 0;
 			}
-			// If player doesn't have enough seeds, they need to borrow
-			else {
-				const seedsNeeded =
-					SEEDS_PER_REFILL - newState.scores[playerIndex];
 
-				// Borrow seeds from the other player
-				newState.borrowedSeeds[playerIndex] += seedsNeeded;
-				newState.scores[playerIndex] += seedsNeeded;
-
-				// Refill each pocket with 1 seed
-				playerPockets.forEach((idx) => {
-					newState.board[idx] = 1;
-				});
-
-				setMessage(
-					`Player ${player} borrowed ${seedsNeeded} seeds from Player ${player === 1 ? 2 : 1}.`
-				);
-			}
+			pockets.forEach((idx) => {
+				newState.board[idx] = 1;
+			});
 
 			return newState;
 		},
-		[getPlayerPockets]
+		[getPlayerPockets],
 	);
 
-	// Check if the game is over
 	const checkGameOver = useCallback(
 		(state: GameState) => {
-			// Check if both players have no seeds left in pockets and no ability to refill
 			const player1HasSeeds =
-				!areAllPlayerPocketsEmpty(state, 1) ||
-				state.scores[0] >= SEEDS_PER_REFILL;
+				!areAllPlayerPocketsEmpty(state, 1) || state.scores[0] >= SEEDS_PER_REFILL;
 			const player2HasSeeds =
-				!areAllPlayerPocketsEmpty(state, 2) ||
-				state.scores[1] >= SEEDS_PER_REFILL;
+				!areAllPlayerPocketsEmpty(state, 2) || state.scores[1] >= SEEDS_PER_REFILL;
 
-			if (!player1HasSeeds || !player2HasSeeds) {
-				// Collect all remaining seeds
-				const remainingSeeds = state.board.reduce((sum, count, idx) => {
-					// Don't count mandarin pockets
-					if (MANDARIN_INDICES.includes(idx)) return sum;
-					return sum + count;
-				}, 0);
+			if (!player1HasSeeds && !player2HasSeeds) {
+				const finalScores: [number, number] = [
+					state.scores[0] - state.borrowedSeeds[0],
+					state.scores[1] - state.borrowedSeeds[1],
+				];
 
-				// Final score calculation accounting for borrowed seeds
-				const newScores = [...state.scores] as [number, number];
+				let winner: 1 | 2 | null = null;
+				if (finalScores[0] > finalScores[1]) winner = 1;
+				else if (finalScores[1] > finalScores[0]) winner = 2;
 
-				// Add remaining seeds to the player who still has seeds
-				if (!player1HasSeeds && player2HasSeeds) {
-					newScores[1] += remainingSeeds;
-				} else if (!player2HasSeeds && player1HasSeeds) {
-					newScores[0] += remainingSeeds;
-				}
-
-				// Adjust for borrowed seeds
-				newScores[0] -= state.borrowedSeeds[0];
-				newScores[1] -= state.borrowedSeeds[1];
-
-				// Determine the winner
-				let gameWinner: 1 | 2 | null = null;
-				if (newScores[0] > newScores[1]) {
-					gameWinner = 1;
-				} else if (newScores[1] > newScores[0]) {
-					gameWinner = 2;
-				}
-
-				// Update the game state
-				setGameState((prev) => ({
-					...prev,
-					board: state.board.map((_, idx) =>
-						MANDARIN_INDICES.includes(idx) ? state.board[idx] : 0
-					),
-					scores: newScores,
-				}));
 				setIsGameOver(true);
-				setWinner(gameWinner);
+				setWinner(winner);
+				setMessage(
+					winner
+						? `Player ${winner} thắng với tỉ số ${finalScores[0]} - ${finalScores[1]}.`
+						: "Hoà điểm!"
+				);
+
 				return true;
 			}
 			return false;
 		},
-		[areAllPlayerPocketsEmpty]
+		[areAllPlayerPocketsEmpty],
 	);
 
-	// Select a pocket
 	const selectPocket = useCallback(
 		(index: number) => {
-			// Only select pockets belonging to the current player that have seeds
-			const playerPockets = getPlayerPockets(currentPlayer);
-
-			if (playerPockets.includes(index) && gameState.board[index] > 0) {
-				setSelectedPocket(index);
-				setMessage("");
-			}
+			if (isGameOver) return;
+			const pockets = getPlayerPockets(currentPlayer);
+			if (!pockets.includes(index)) return;
+			if (gameState.board[index] === 0) return;
+			setSelectedPocket(index);
 		},
-		[currentPlayer, gameState.board, getPlayerPockets]
+		[isGameOver, currentPlayer, getPlayerPockets, gameState.board],
 	);
 
-	// Animated version of makeMove
 	const makeMove = useCallback(() => {
-		if (selectedPocket === null || animationState.isAnimating) return;
+		if (selectedPocket === null || isGameOver) return;
+		const pockets = getPlayerPockets(currentPlayer);
+		if (!pockets.includes(selectedPocket)) return;
+		if (gameState.board[selectedPocket] === 0) return;
 
-		// Clear any existing animation timeouts
-		clearAnimationTimeouts();
+		const direction = sowDirection;
+		const newBoard = [...gameState.board];
+		const newScores = [...gameState.scores] as [number, number];
+		const borrowedSeeds = [...gameState.borrowedSeeds] as [number, number];
 
-		// Start with a copy of the current state
-		let newBoard = [...gameState.board];
-		let newScores = [...gameState.scores] as [number, number];
-		let borrowedSeeds = [...gameState.borrowedSeeds] as [number, number];
-
-		// This will track all the animation steps
-		type AnimationStep = {
-			action: "pickup" | "sow" | "capture";
-			pocketIndex: number;
-			count?: number;
-		};
-
-		const animationSteps: AnimationStep[] = [];
-
-		// Initial pickup
+		let seeds = newBoard[selectedPocket];
 		let currentIndex = selectedPocket;
-		let seeds = newBoard[currentIndex];
-
-		animationSteps.push({
-			action: "pickup",
-			pocketIndex: currentIndex,
-			count: seeds,
-		});
-
 		newBoard[currentIndex] = 0;
 
-		// Main game loop (similar to the original logic but collecting animation steps)
-		let shouldContinue = true;
-		let switchPlayer = true;
+		const playerIndex = currentPlayer - 1;
 
-		while (shouldContinue && seeds > 0) {
-			// Sow seeds
+		const sowSeeds = () => {
 			while (seeds > 0) {
-				currentIndex = (currentIndex + 1) % 12;
-
-				// Skip the starting pocket if it's the first round
-				if (
-					currentIndex !== selectedPocket ||
-					seeds < gameState.board[selectedPocket]
-				) {
-					animationSteps.push({
-						action: "sow",
-						pocketIndex: currentIndex,
-					});
-
-					newBoard[currentIndex]++;
-					seeds--;
-				}
+				currentIndex = getNextIndex(currentIndex, direction);
+				newBoard[currentIndex] += 1;
+				seeds--;
 			}
-
-			// Check the next pocket after the last seed was sown
-			const nextIndex = (currentIndex + 1) % 12;
-
-			// If the ending pocket has seeds and the next pocket also has seeds,
-			// pick up those seeds and continue sowing (Rule 1)
-			if (newBoard[nextIndex] > 0) {
-				currentIndex = nextIndex;
-				seeds = newBoard[currentIndex];
-
-				animationSteps.push({
-					action: "pickup",
-					pocketIndex: currentIndex,
-					count: seeds,
-				});
-
-				newBoard[currentIndex] = 0;
-				shouldContinue = true;
-				switchPlayer = false; // Don't switch yet
-			}
-			// If the ending pocket is empty and the next one has seeds, capture (Rule 2 & 3)
-			else if (newBoard[currentIndex] === 0) {
-				// Look for the next non-empty pocket
-				let checkIndex = nextIndex;
-				let emptyCount = 0;
-
-				while (newBoard[checkIndex] === 0) {
-					emptyCount++;
-					checkIndex = (checkIndex + 1) % 12;
-
-					// If we've gone all the way around the board
-					if (checkIndex === nextIndex) {
-						shouldContinue = false;
-						break;
-					}
-				}
-
-				// If there's exactly one empty pocket between (Rule 3)
-				if (emptyCount === 1 && newBoard[checkIndex] > 0) {
-					// Capture the seeds
-					const capturedSeeds = newBoard[checkIndex];
-
-					animationSteps.push({
-						action: "capture",
-						pocketIndex: checkIndex,
-						count: capturedSeeds,
-					});
-
-					newBoard[checkIndex] = 0;
-
-					// Add to score: if mandarin then +10, else +1 for each seed
-					if (MANDARIN_INDICES.includes(checkIndex)) {
-						newScores[currentPlayer - 1] += MANDARIN_VALUE;
-					} else {
-						newScores[currentPlayer - 1] += capturedSeeds;
-					}
-
-					// Continue from this position (Rule 4 - rich pocket)
-					currentIndex = checkIndex;
-					seeds = 0; // No seeds to pick up
-					shouldContinue = true;
-					switchPlayer = false;
-				}
-				// If there's more than one empty pocket or it's a mandarin (Rule 5)
-				else {
-					shouldContinue = false;
-				}
-			}
-			// Otherwise, end turn
-			else {
-				shouldContinue = false;
-			}
-		}
-
-		// Start the animation sequence
-		startAnimation(selectedPocket);
-
-		// Execute animation steps with delays
-		let delay = 0;
-		const finalState = {
-			board: newBoard,
-			scores: newScores,
-			borrowedSeeds: borrowedSeeds,
 		};
 
-		// Process each animation step with a delay
-		animationSteps.forEach((step, index) => {
-			const timeoutId = window.setTimeout(() => {
-				// Update the visual state based on the step
-				updateAnimationIndex(step.pocketIndex);
+		sowSeeds();
 
-				// If it's the last step, perform final updates
-				if (index === animationSteps.length - 1) {
-					const timeoutId = window.setTimeout(() => {
-						// Complete final updates
-						setGameState(finalState);
-						setSelectedPocket(null);
-						stopAnimation();
+		let continueTurn = true;
+		let switchPlayer = true;
 
-						// Check for game over
-						const gameEnded = checkGameOver(finalState);
+		while (continueTurn) {
+			const nextIndex = getNextIndex(currentIndex, direction);
 
-						// Switch players if game not over and player should switch
-						if (!gameEnded && switchPlayer) {
-							const nextPlayer = currentPlayer === 1 ? 2 : 1;
+			if (newBoard[nextIndex] > 0 && !MANDARIN_INDICES.includes(currentIndex)) {
+				// Pick up and continue
+				seeds = newBoard[nextIndex];
+				newBoard[nextIndex] = 0;
+				currentIndex = nextIndex;
+				switchPlayer = false;
+				sowSeeds();
+				continue;
+			}
 
-							// Check if next player's pockets are all empty (Rule 6)
-							if (
-								areAllPlayerPocketsEmpty(finalState, nextPlayer)
-							) {
-								const updatedState = handleEmptyPockets(
-									finalState,
-									nextPlayer
-								);
-								setGameState(updatedState);
-							}
+			if (newBoard[nextIndex] === 0) {
+				let emptyCount = 0;
+				let checkIndex = nextIndex;
 
-							setCurrentPlayer(nextPlayer);
-						}
-					}, ANIMATION_DELAY);
-
-					animationTimeoutsRef.current.push(timeoutId);
+				while (true) {
+					checkIndex = getNextIndex(checkIndex, direction);
+					if (checkIndex === nextIndex) break;
+					if (newBoard[checkIndex] === 0) {
+						emptyCount++;
+						continue;
+					}
+					break;
 				}
 
-				// Update the intermediate state for visualization
-				setGameState((prev) => {
-					const boardCopy = [...prev.board];
-
-					if (step.action === "pickup") {
-						boardCopy[step.pocketIndex] = 0;
-					} else if (step.action === "sow") {
-						boardCopy[step.pocketIndex] =
-							(boardCopy[step.pocketIndex] || 0) + 1;
-					} else if (step.action === "capture") {
-						boardCopy[step.pocketIndex] = 0;
+				if (emptyCount === 1 && newBoard[checkIndex] > 0) {
+					const captured = newBoard[checkIndex];
+					newBoard[checkIndex] = 0;
+					if (MANDARIN_INDICES.includes(checkIndex)) {
+						newScores[playerIndex] += MANDARIN_VALUE;
+					} else {
+						newScores[playerIndex] += captured;
 					}
+					currentIndex = checkIndex;
+					switchPlayer = false;
+					continue;
+				}
+			}
 
-					return {
-						...prev,
-						board: boardCopy,
-						scores:
-							step.action === "capture" ? newScores : prev.scores,
-					};
-				});
-			}, delay);
+			continueTurn = false;
+		}
 
-			animationTimeoutsRef.current.push(timeoutId);
-			delay += ANIMATION_DELAY;
-		});
+		const updatedState: GameState = {
+			board: newBoard,
+			scores: newScores,
+			borrowedSeeds,
+		};
+
+		setGameState(updatedState);
+		setSelectedPocket(null);
+		setMessage(
+			`Player ${currentPlayer} đi ${direction === 1 ? "ngược chiều kim đồng hồ" : "thuận chiều kim đồng hồ"}.`
+		);
+
+		const ended = checkGameOver(updatedState);
+		if (!ended && switchPlayer) {
+			const nextPlayer = currentPlayer === 1 ? 2 : 1;
+			let stateForNext = updatedState;
+			if (areAllPlayerPocketsEmpty(updatedState, nextPlayer)) {
+				stateForNext = handleEmptyPockets(updatedState, nextPlayer);
+				setGameState(stateForNext);
+			}
+			setCurrentPlayer(nextPlayer);
+		}
 	}, [
 		selectedPocket,
-		gameState,
+		isGameOver,
+		getPlayerPockets,
 		currentPlayer,
-		animationState.isAnimating,
-		clearAnimationTimeouts,
+		gameState,
+		sowDirection,
 		checkGameOver,
 		areAllPlayerPocketsEmpty,
 		handleEmptyPockets,
-		startAnimation,
-		updateAnimationIndex,
-		stopAnimation,
 	]);
 
-	// Reset the game
 	const resetGame = useCallback(() => {
-		clearAnimationTimeouts();
-		stopAnimation();
 		setGameState({ ...INITIAL_STATE });
 		setCurrentPlayer(1);
 		setSelectedPocket(null);
 		setIsGameOver(false);
 		setWinner(null);
 		setMessage("");
-	}, [clearAnimationTimeouts, stopAnimation]);
+	}, []);
 
 	return {
 		gameState,
@@ -431,5 +252,7 @@ export const useMandarinSquareGame = () => {
 		selectPocket,
 		makeMove,
 		resetGame,
+		sowDirection,
+		setSowDirection,
 	};
 };

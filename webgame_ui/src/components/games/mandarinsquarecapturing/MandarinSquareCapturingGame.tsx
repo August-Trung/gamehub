@@ -15,6 +15,8 @@ const MandarinSquareCapturingGame: React.FC = () => {
 		selectPocket,
 		makeMove,
 		resetGame,
+		sowDirection,
+		setSowDirection,
 	} = useMandarinSquareGame();
 
 	return (
@@ -51,6 +53,8 @@ const MandarinSquareCapturingGame: React.FC = () => {
 				<MandarinSquareControls
 					onMakeMove={makeMove}
 					onResetGame={resetGame}
+					onChangeDirection={setSowDirection}
+					currentDirection={sowDirection}
 					canMove={
 						selectedPocket !== null && !animationState.isAnimating
 					}

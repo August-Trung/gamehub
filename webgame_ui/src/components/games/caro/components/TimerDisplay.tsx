@@ -20,52 +20,42 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({
 	onStartGame,
 }) => {
 	return (
-		<div className="flex justify-between w-full mb-4">
+		<div className="flex flex-col sm:flex-row gap-4 w-full mb-6">
 			<div
-				className={`flex flex-col items-center p-3 rounded-lg ${
-					currentPlayer === "X"
-						? "bg-blue-100 border-2 border-blue-500"
-						: "bg-gray-100"
+				className={`caro-player-card ${
+					currentPlayer === "X" ? "active" : ""
 				}`}>
-				<div className="font-bold text-blue-600">Player X</div>
-				<div
-					className={`text-xl font-mono ${
-						timeOutPlayer === "X" ? "text-red-600" : ""
-					}`}>
+				<div className="label">Player X</div>
+				<div className="timer">
 					{playerX}
+					{timeOutPlayer === "X" ? " ⏰" : ""}
 				</div>
 			</div>
 
-			<div className="flex items-center">
+			<div className="flex flex-col items-center justify-center gap-2">
 				{isRunning ? (
-					<div className="text-green-600 font-bold">
-						{currentPlayer === "X" ? "⏱️ X Turn" : "⏱️ O Turn"}
+					<div className="text-cyan-200 font-semibold tracking-[0.3em] uppercase">
+						{currentPlayer === "X" ? "X TURN" : "O TURN"}
 					</div>
 				) : hasTimeOut ? (
-					<div className="text-red-600 font-bold">
-						Time Out: {timeOutPlayer} loses!
+					<div className="text-rose-300 font-semibold tracking-[0.3em] uppercase">
+						Time out: {timeOutPlayer}
 					</div>
 				) : (
-					<button
-						className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
-						onClick={onStartGame}>
+					<button className="caro-button secondary" onClick={onStartGame}>
 						Start Game
 					</button>
 				)}
 			</div>
 
 			<div
-				className={`flex flex-col items-center p-3 rounded-lg ${
-					currentPlayer === "O"
-						? "bg-red-100 border-2 border-red-500"
-						: "bg-gray-100"
+				className={`caro-player-card ${
+					currentPlayer === "O" ? "active" : ""
 				}`}>
-				<div className="font-bold text-red-600">Player O</div>
-				<div
-					className={`text-xl font-mono ${
-						timeOutPlayer === "O" ? "text-red-600" : ""
-					}`}>
+				<div className="label">Player O</div>
+				<div className="timer">
 					{playerO}
+					{timeOutPlayer === "O" ? " ⏰" : ""}
 				</div>
 			</div>
 		</div>

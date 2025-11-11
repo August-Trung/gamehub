@@ -3,6 +3,8 @@ import React from "react";
 interface MandarinSquareControlsProps {
 	onMakeMove: () => void;
 	onResetGame: () => void;
+	onChangeDirection: (direction: 1 | -1) => void;
+	currentDirection: 1 | -1;
 	canMove: boolean;
 	isGameOver: boolean;
 }
@@ -10,9 +12,14 @@ interface MandarinSquareControlsProps {
 const MandarinSquareControls: React.FC<MandarinSquareControlsProps> = ({
 	onMakeMove,
 	onResetGame,
+	onChangeDirection,
+	currentDirection,
 	canMove,
 	isGameOver,
 }) => {
+	const directionLabel =
+		currentDirection === 1 ? "Ngược chiều kim đồng hồ" : "Thuận chiều kim đồng hồ";
+
 	const showRules = () => {
 		alert(`Game Rules:
 1. Select a pocket with seeds and sow them counterclockwise.
@@ -42,12 +49,18 @@ const MandarinSquareControls: React.FC<MandarinSquareControlsProps> = ({
 
 			<button
 				className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
-				onClick={onResetGame}>
-				Restart Game
-			</button>
+			onClick={onResetGame}>
+			Restart Game
+		</button>
 
-			{!isGameOver && (
-				<button
+		<button
+			className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md"
+			onClick={() => onChangeDirection(currentDirection === 1 ? -1 : 1)}>
+			{directionLabel}
+		</button>
+
+		{!isGameOver && (
+			<button
 					className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md"
 					onClick={showRules}>
 					Rules

@@ -36,17 +36,15 @@ const Controls: React.FC<ControlsProps> = ({
 				</button>
 			</div>
 
-			<div className="tetris-controls-container">
-				<div className="tetris-control-row">
-					<button
-						onClick={rotate}
-						disabled={isPaused || gameOver}
-						className={`tetris-control-button ${
-							isPaused || gameOver ? "disabled" : ""
-						}`}>
-						{isMobile ? "↻" : "Rotate"}
-					</button>
-				</div>
+			<div className="tetris-touch-grid">
+				<button
+					onClick={rotate}
+					disabled={isPaused || gameOver}
+					className={`tetris-control-button ${
+						isPaused || gameOver ? "disabled" : ""
+					}`}>
+					{isMobile ? "↻" : "Rotate"}
+				</button>
 				<div className="tetris-direction-button-container">
 					<button
 						onClick={() => movePlayer(-1)}
@@ -73,16 +71,14 @@ const Controls: React.FC<ControlsProps> = ({
 						{isMobile ? "→" : "Right"}
 					</button>
 				</div>
-				<div className="tetris-control-row">
-					<button
-						onClick={hardDrop}
-						disabled={isPaused || gameOver}
-						className={`tetris-control-button ${
-							isPaused || gameOver ? "disabled" : ""
-						}`}>
-						{isMobile ? "⤓" : "Drop"}
-					</button>
-				</div>
+				<button
+					onClick={hardDrop}
+					disabled={isPaused || gameOver}
+					className={`tetris-control-button ${
+						isPaused || gameOver ? "disabled" : ""
+					}`}>
+					{isMobile ? "⤓" : "Drop"}
+				</button>
 			</div>
 
 			{!isMobile && (

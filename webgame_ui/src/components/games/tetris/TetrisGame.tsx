@@ -70,19 +70,38 @@ export default function TetrisGame() {
 					nextPiece={nextPiece}
 				/>
 
-				<Controls
-					isPaused={isPaused}
-					gameOver={gameOver}
-					startGame={startGame}
-					pauseGame={pauseGame}
-					resetGame={resetGame}
-					movePlayer={movePlayer}
-					moveDown={moveDown}
-					rotate={rotate}
-					hardDrop={hardDrop}
-					isMobile={isMobile}
-				/>
+				{!isMobile && (
+					<Controls
+						isPaused={isPaused}
+						gameOver={gameOver}
+						startGame={startGame}
+						pauseGame={pauseGame}
+						resetGame={resetGame}
+						movePlayer={movePlayer}
+						moveDown={moveDown}
+						rotate={rotate}
+						hardDrop={hardDrop}
+						isMobile={isMobile}
+					/>
+				)}
 			</div>
+
+			{isMobile && (
+				<div className="tetris-floating-controls">
+					<Controls
+						isPaused={isPaused}
+						gameOver={gameOver}
+						startGame={startGame}
+						pauseGame={pauseGame}
+						resetGame={resetGame}
+						movePlayer={movePlayer}
+						moveDown={moveDown}
+						rotate={rotate}
+						hardDrop={hardDrop}
+						isMobile={isMobile}
+					/>
+				</div>
+			)}
 		</div>
 	);
 }

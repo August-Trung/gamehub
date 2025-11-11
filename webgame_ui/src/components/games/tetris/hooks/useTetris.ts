@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useBoard } from "./useBoard";
 import { usePlayer } from "./usePlayer";
 import { BOARD_WIDTH, BOARD_HEIGHT } from "../constants/constants";
@@ -251,18 +251,23 @@ export const useTetris = () => {
 		}
 	}, [level, isPaused, gameOver]);
 
-	// Keep the existing game loop but make it depend on dropTime only
+	const moveDownRef = useRef(moveDown);
+	useEffect(() => {
+		moveDownRef.current = moveDown;
+	}, [moveDown]);
+
+	// Game loop: use latest moveDown without resetting interval on horizontal input
 	useEffect(() => {
 		if (!isPaused && !gameOver && dropTime !== null) {
 			const timer = setInterval(() => {
-				moveDown();
+				moveDownRef.current();
 			}, dropTime);
 
 			return () => {
 				clearInterval(timer);
 			};
 		}
-	}, [moveDown, dropTime, isPaused, gameOver]);
+	}, [dropTime, isPaused, gameOver]);
 
 	// Update the board when a piece lands
 	useEffect(() => {

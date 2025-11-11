@@ -57,7 +57,7 @@ const BattleshipGame: React.FC = () => {
 	const allShipsPlaced = getCurrentPlayerShips().every((ship) => ship.placed);
 
 	return (
-		<div className="">
+		<div className="battleship-game battleship-neon-shell">
 			<h1>
 				<span className="game-logo">⚓ Battleship Game</span> -{" "}
 				{currentPlayerName}

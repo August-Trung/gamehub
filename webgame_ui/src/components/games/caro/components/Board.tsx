@@ -23,7 +23,7 @@ const Board: React.FC<BoardProps> = ({
 
 	return (
 		<div
-			className="grid gap-0 bg-amber-100 border border-amber-800"
+			className="caro-board grid gap-0"
 			style={{
 				gridTemplateColumns: `repeat(${board[0].length}, ${cellSize}px)`,
 				gridTemplateRows: `repeat(${board.length}, ${cellSize}px)`,
